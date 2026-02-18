@@ -175,6 +175,7 @@ export function EmployeesPage() {
   const [openModal, setOpenModal] = useState(false)
   const [editEmployee, setEditEmployee] = useState<Employee | null>(null)
   const [deleteEmployeeId, setDeleteEmployeeId] = useState<string | null>(null)
+  const [openActionsFor, setOpenActionsFor] = useState<string | null>(null)
 
   const departmentOptions = useMemo<Option[]>(() => {
     return employeeService.departments().map((value) => ({
@@ -183,6 +184,19 @@ export function EmployeesPage() {
     }))
   }, [])
 
+  useEffect(() => {
+    if (!openActionsFor) {
+      return
+    }
+
+    const onWindowClick = () => setOpenActionsFor(null)
+    window.addEventListener('click', onWindowClick)
+
+    return () => {
+      window.removeEventListener('click', onWindowClick)
+    }
+  }, [openActionsFor])
+
   async function fetchData(nextQuery: EmployeeQuery) {
     setLoading(true)
     setError('')
@@ -190,7 +204,7 @@ export function EmployeesPage() {
     try {
       const data = await employeeService.listEmployees(nextQuery)
       setResult(data)
-      setQuery((prev) => ({ ...nextQuery, page: data.page, perPage: data.perPage, status: prev.status }))
+      setQuery((prev) => ({ ...prev, ...nextQuery, page: data.page, perPage: data.perPage }))
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unable to load employees.'
       setError(message)
@@ -201,7 +215,7 @@ export function EmployeesPage() {
 
   useEffect(() => {
     void fetchData(query)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     query.search,
     query.status,
@@ -430,39 +444,79 @@ export function EmployeesPage() {
               </tr>
             </thead>
             <tbody>
-              {result.items.map((employee) => (
-                <tr key={employee.id}>
-                  <td>{employee.employeeCode}</td>
-                  <td>{employee.name}</td>
-                  <td>{employee.email}</td>
-                  <td>{employee.workType}</td>
-                  <td>{employee.jobTitle}</td>
-                  <td>{employee.department}</td>
-                  <td>
-                    <span className={`badge ${employee.status}`}>{toTitleStatus(employee.status)}</span>
-                  </td>
-                  <td>
-                    <div className="row-actions">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={() => {
-                          setEditEmployee(employee)
-                          setOpenModal(true)
-                        }}
-                      >
-                        Edit
-                      </Button>
-                      <Button type="button" variant="secondary" onClick={() => onCycleStatus(employee)}>
-                        Change Status
-                      </Button>
-                      <Button type="button" variant="danger" onClick={() => setDeleteEmployeeId(employee.id)}>
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {result.items.map((employee) => {
+                const menuOpen = openActionsFor === employee.id
+
+                return (
+                  <tr key={employee.id}>
+                    <td>{employee.employeeCode}</td>
+                    <td>{employee.name}</td>
+                    <td>{employee.email}</td>
+                    <td>{employee.workType}</td>
+                    <td>{employee.jobTitle}</td>
+                    <td>{employee.department}</td>
+                    <td>
+                      <span className={`badge ${employee.status}`}>{toTitleStatus(employee.status)}</span>
+                    </td>
+                    <td>
+                      <div className="row-actions">
+                        <div className="action-menu-wrap">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            className="action-trigger"
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              setOpenActionsFor((prev) => (prev === employee.id ? null : employee.id))
+                            }}
+                            aria-expanded={menuOpen}
+                            aria-haspopup="menu"
+                          >
+                            Actions
+                          </Button>
+
+                          {menuOpen ? (
+                            <div className="action-menu" role="menu" onClick={(event) => event.stopPropagation()}>
+                              <button
+                                type="button"
+                                role="menuitem"
+                                onClick={() => {
+                                  setEditEmployee(employee)
+                                  setOpenModal(true)
+                                  setOpenActionsFor(null)
+                                }}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                role="menuitem"
+                                onClick={() => {
+                                  void onCycleStatus(employee)
+                                  setOpenActionsFor(null)
+                                }}
+                              >
+                                Change Status
+                              </button>
+                              <button
+                                type="button"
+                                role="menuitem"
+                                className="danger"
+                                onClick={() => {
+                                  setDeleteEmployeeId(employee.id)
+                                  setOpenActionsFor(null)
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>

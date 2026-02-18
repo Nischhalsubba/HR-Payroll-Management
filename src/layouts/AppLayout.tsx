@@ -5,12 +5,13 @@ import { toSentenceCase } from '../utils/helpers'
 
 export function AppLayout() {
   const navigate = useNavigate()
-  const { signOut } = useAuth()
+  const { user, signOut } = useAuth()
 
   return (
     <div className="dashboard-shell">
       <aside className="sidebar">
         <div className="sidebar-brand">HRMinds</div>
+
         <nav className="sidebar-nav" aria-label="Main">
           {sidebarSections.map((section) => (
             <NavLink
@@ -32,6 +33,16 @@ export function AppLayout() {
           >
             <strong>Upgrade to Premium</strong>
             <span>Get advanced analytics and payroll automations</span>
+          </button>
+
+          <button
+            type="button"
+            className="premium-card"
+            onClick={() => navigate('/app/settings')}
+            aria-label="Open account settings"
+          >
+            <strong>{user?.name ?? 'Team Manager'}</strong>
+            <span>{user?.email ?? 'admin@hrminds.com'}</span>
           </button>
 
           <button

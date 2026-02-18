@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import { Button } from '../../components/ui/Button'
 import { Field } from '../../components/ui/Field'
@@ -47,8 +47,8 @@ export function ForgotPasswordPage() {
 
   return (
     <div className="auth-card narrow">
-      <h1>Forgot Password?</h1>
-      <p>Enter your registered email to receive a reset code.</p>
+      <h1>Forgot password?</h1>
+      <p>Enter your registered email and we will send a 6-digit verification code.</p>
 
       <form className="stack-md" onSubmit={onSubmit}>
         <Field label="Email" id="forgot-email" type="email" error={errors.email?.message} {...register('email')} />
@@ -56,6 +56,10 @@ export function ForgotPasswordPage() {
         <Button type="submit" fullWidth disabled={isSubmitting}>
           {isSubmitting ? 'Sending...' : 'Send OTP'}
         </Button>
+
+        <p className="subtle-center">
+          Remembered your password? <Link to="/auth/login">Back to Login</Link>
+        </p>
       </form>
     </div>
   )

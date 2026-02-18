@@ -3,6 +3,7 @@ import { getEmployees } from '../mocks/db'
 import { wait } from '../utils/helpers'
 
 const store = getEmployees()
+const REFERENCE_NOW = new Date('2026-02-18T00:00:00Z')
 
 function compare(a: string, b: string, direction: 'asc' | 'desc') {
   const order = direction === 'asc' ? 1 : -1
@@ -23,7 +24,7 @@ function resolveRange(query: EmployeeQuery): { from?: number; to?: number } {
     }
   }
 
-  const now = new Date('2026-02-18T00:00:00Z').getTime()
+  const now = REFERENCE_NOW.getTime()
   const mapping: Record<Exclude<EmployeeQuery['datePreset'], 'custom'>, number> = {
     '3_days': 3,
     '7_days': 7,
@@ -102,7 +103,7 @@ export async function createEmployee(input: EmployeeFormInput): Promise<Employee
     jobTitle: input.jobTitle,
     department: input.department,
     status: input.status,
-    createdAt: new Date().toISOString(),
+    createdAt: REFERENCE_NOW.toISOString(),
   }
 
   store.unshift(employee)

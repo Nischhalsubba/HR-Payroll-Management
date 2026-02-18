@@ -13,7 +13,9 @@ export function StubSectionPage() {
     <div className="panel stack-lg">
       <div>
         <h1>{title}</h1>
-        <p>Interactive placeholder page. Use quick actions to validate click flows.</p>
+        <p>
+          This section is interactive in Phase 1 with preview actions while full feature implementation is pending.
+        </p>
       </div>
 
       <div className="cards-grid">
@@ -31,23 +33,23 @@ export function StubSectionPage() {
           onClick={() => push(`${title}: export simulated.`, 'success')}
         >
           <strong>Export Snapshot</strong>
-          <span>Trigger export interaction</span>
+          <span>Generate a section export placeholder</span>
         </button>
         <button
           type="button"
           className="stat-card"
-          onClick={() => push(`${title}: report opened.`, 'info')}
+          onClick={() => push(`${title}: workflow opened.`, 'info')}
         >
-          <strong>Open Report</strong>
-          <span>Trigger navigation interaction</span>
+          <strong>Open Workflow</strong>
+          <span>Navigate next action in this section</span>
         </button>
       </div>
 
       <div className="inline-actions">
-        <Button type="button" onClick={() => push('Primary action clicked.', 'success')}>
+        <Button type="button" onClick={() => push(`${title}: primary action clicked.`, 'success')}>
           Primary Action
         </Button>
-        <Button type="button" variant="secondary" onClick={() => push('Secondary action clicked.', 'info')}>
+        <Button type="button" variant="secondary" onClick={() => push(`${title}: secondary action clicked.`, 'info')}>
           Secondary Action
         </Button>
       </div>

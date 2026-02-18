@@ -6,15 +6,18 @@ import { useAuth } from '../context/AuthContext'
 const slides = [
   {
     title: 'Your smart HR platform for work, time, and people.',
-    subtitle: 'Manage your team, payroll, and attendance from one place.',
+    subtitle: 'Manage payroll, attendance, and employee records in one streamlined dashboard.',
+    items: ['Live team activity', 'Automated reminders', 'One-click reports'],
   },
   {
     title: 'Track your time with one tap, anytime, anywhere.',
-    subtitle: 'Capture attendance quickly for office, remote, and hybrid teams.',
+    subtitle: 'Capture attendance across office, remote, and hybrid teams with transparent timelines.',
+    items: ['Geofenced check-ins', 'Shift monitoring', 'Late arrival alerts'],
   },
   {
     title: 'Request and track leave in seconds.',
-    subtitle: 'Simple leave approvals and transparent team availability.',
+    subtitle: 'Approve faster, reduce conflicts, and keep everyone aligned with leave calendars.',
+    items: ['Approval queue', 'Balance snapshots', 'Calendar sync'],
   },
 ]
 
@@ -48,6 +51,8 @@ export function OnboardingPage() {
     navigate('/auth/login')
   }
 
+  const activeSlide = slides[active]
+
   return (
     <main className="onboarding-shell">
       <section
@@ -70,11 +75,39 @@ export function OnboardingPage() {
           setTouchStart(null)
         }}
       >
-        <header className="phone-brand">HRMinds</header>
-        <div className="onboarding-slide">
-          <h1>{slides[active].title}</h1>
-          <p>{slides[active].subtitle}</p>
+        <div className="phone-status">
+          <div className="phone-notch" />
         </div>
+
+        <header className="phone-brand">
+          <span>HRMinds</span>
+          <Button type="button" variant="ghost" onClick={finish}>
+            Skip
+          </Button>
+        </header>
+
+        <article className="onboarding-slide" aria-live="polite">
+          <div className="onboarding-slide-visual" aria-hidden="true">
+            <div className="slide-line" />
+            <div className="slide-line dim" />
+            <div className="slide-card-row">
+              {activeSlide.items.slice(0, 2).map((item) => (
+                <div key={item} className="slide-card">
+                  <div className="slide-line" />
+                  <div className="slide-line dim" />
+                </div>
+              ))}
+            </div>
+            <div className="slide-card">
+              <div className="slide-line" />
+              <div className="slide-line dim" />
+              <div className="slide-line dim" />
+            </div>
+          </div>
+
+          <h1>{activeSlide.title}</h1>
+          <p>{activeSlide.subtitle}</p>
+        </article>
 
         <div className="onboarding-dots" aria-label="Slide indicator">
           {slides.map((slide, index) => (
@@ -89,11 +122,13 @@ export function OnboardingPage() {
         </div>
 
         <div className="onboarding-actions">
-          <Button type="button" variant="ghost" onClick={finish}>
-            Skip
-          </Button>
           <div className="inline-actions">
-            <Button type="button" variant="secondary" onClick={() => setActive((value) => Math.max(0, value - 1))}>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setActive((value) => Math.max(0, value - 1))}
+              disabled={active === 0}
+            >
               Back
             </Button>
             {isLast ? (

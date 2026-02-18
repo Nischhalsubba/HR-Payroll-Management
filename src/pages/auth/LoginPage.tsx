@@ -52,7 +52,7 @@ export function LoginPage() {
   return (
     <div className="auth-card">
       <h1>Welcome to HRMinds</h1>
-      <p>Sign in to manage your workforce seamlessly.</p>
+      <p>Log in to continue managing employees, leaves, payroll, and daily operations.</p>
 
       <form className="stack-md" onSubmit={onSubmit}>
         <Field
@@ -87,7 +87,7 @@ export function LoginPage() {
         </p>
       </form>
 
-      <div className="stack-sm">
+      <div className="auth-card-social">
         <Button type="button" variant="secondary" fullWidth onClick={() => push('Google SSO simulated.', 'info')}>
           Continue with Google
         </Button>

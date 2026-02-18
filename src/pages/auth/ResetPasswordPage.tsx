@@ -28,7 +28,7 @@ type FormValue = z.infer<typeof schema>
 export function ResetPasswordPage() {
   const navigate = useNavigate()
   const { push } = useToast()
-  const context = loadResetContext()
+  const [context] = useState(loadResetContext)
   const [submitError, setSubmitError] = useState('')
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export function ResetPasswordPage() {
       authService.cleanupResetRequest(requestId)
       clearResetContext()
       push('Password reset successful. Please login.', 'success')
-      navigate('/auth/login')
+      navigate('/auth/login', { replace: true })
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unable to reset password.'
       setSubmitError(message)
@@ -74,8 +74,8 @@ export function ResetPasswordPage() {
 
   return (
     <div className="auth-card narrow">
-      <h1>Reset Your Password</h1>
-      <p>Let&apos;s create a new password for your account.</p>
+      <h1>Reset your password</h1>
+      <p>Create a strong new password and use it for your next login.</p>
 
       <form className="stack-md" onSubmit={onSubmit}>
         <Field

@@ -60,8 +60,8 @@ export function SignupPage() {
 
   return (
     <div className="auth-card">
-      <h1>Join HRMinds</h1>
-      <p>Get started by creating your account.</p>
+      <h1>Create your account</h1>
+      <p>Set up HRMinds to start tracking team, attendance, and payroll workflows.</p>
 
       <form className="stack-md" onSubmit={onSubmit}>
         <Field label="Full Name" id="signup-name" error={errors.name?.message} {...register('name')} />

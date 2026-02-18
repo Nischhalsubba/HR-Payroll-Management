@@ -103,12 +103,12 @@ export function OtpPage() {
 
   return (
     <div className="auth-card narrow">
-      <h1>We&apos;ve sent a code!</h1>
-      <p>Check your inbox for a 6-digit code and enter it below.</p>
+      <h1>Verify code</h1>
+      <p>Enter the 6-digit code sent to {context.email} to continue password reset.</p>
 
       <div className="stack-md">
         <OtpInput value={digits} onChange={setDigits} />
-        <p className="subtle-center">{formatSeconds(expiresIn)} time left</p>
+        <p className="subtle-center">Code expires in {formatSeconds(expiresIn)}</p>
         {error ? <p className="field-message">{error}</p> : null}
 
         <Button type="button" fullWidth onClick={onVerify} disabled={submitting || expiresIn === 0}>
@@ -116,7 +116,7 @@ export function OtpPage() {
         </Button>
 
         <button type="button" className="text-link" onClick={onResend} disabled={resendIn > 0}>
-          {resendIn > 0 ? `Resend in ${resendIn}s` : 'Didn\'t get the code? Send Again'}
+          {resendIn > 0 ? `Resend in ${resendIn}s` : "Didn't get the code? Send Again"}
         </button>
 
         <button
