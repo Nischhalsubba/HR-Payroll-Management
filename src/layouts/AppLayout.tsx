@@ -1,32 +1,41 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../context/AuthContext'
-import { sidebarSections } from '../mocks/employees'
-import { toSentenceCase } from '../utils/helpers'
+
+const navItems = [
+  { key: 'dashboard', label: 'Dashboard', icon: 'D' },
+  { key: 'attendance', label: 'Attendance', icon: 'A' },
+  { key: 'employees', label: 'Employee', icon: 'E' },
+  { key: 'payroll', label: 'Payroll', icon: 'P' },
+  { key: 'calendar', label: 'People Calendar', icon: 'C' },
+  { key: 'reports', label: 'Training', icon: 'T' },
+  { key: 'departments', label: 'Recruitment', icon: 'R' },
+  { key: 'help', label: 'Application', icon: 'Ap' },
+]
 
 const sectionDescriptions: Record<string, string> = {
   dashboard: 'Key HR metrics and employee activity.',
   employees: 'Manage employee records and updates.',
-  attendance: 'Track attendance status and check-ins.',
+  attendance: 'Track employe attendance and manage daily.',
   payroll: 'Process salary, bonuses, and payouts.',
-  departments: 'Organize teams and department ownership.',
-  reports: 'Review analytics and export insights.',
-  calendar: 'Monitor events, shifts, and deadlines.',
+  departments: 'Manage hiring pipeline and teams.',
+  reports: 'Plan training and track progress.',
+  calendar: 'Handle people calendar and schedules.',
   settings: 'Control workspace and account preferences.',
-  help: 'Find support resources and documentation.',
+  help: 'Review application and help center.',
 }
 
 export function AppLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const { push } = useToast()
-  const { user, signOut } = useAuth()
+  const { signOut } = useAuth()
   const [search, setSearch] = useState('')
 
   const section = location.pathname.split('/')[2] ?? 'dashboard'
-  const title = toSentenceCase(section)
+  const title = section === 'attendance' ? 'Attendance' : navItems.find((item) => item.key === section)?.label ?? 'Dashboard'
   const subtitle = sectionDescriptions[section] ?? 'Manage your HR operations.'
 
   function onSearchSubmit(event: FormEvent<HTMLFormElement>) {
@@ -37,16 +46,20 @@ export function AppLayout() {
   return (
     <div className="dashboard-shell">
       <aside className="sidebar">
-        <div className="sidebar-brand">HRMinds</div>
+        <div className="sidebar-brand-wrap">
+          <div className="sidebar-brand-logo">H</div>
+          <div className="sidebar-brand">HRMinds</div>
+        </div>
 
         <nav className="sidebar-nav" aria-label="Main">
-          {sidebarSections.map((item) => (
+          {navItems.map((item) => (
             <NavLink
-              key={item}
-              to={`/app/${item}`}
+              key={item.key}
+              to={`/app/${item.key}`}
               className={({ isActive }) => (isActive ? 'sidebar-link active' : 'sidebar-link')}
             >
-              {toSentenceCase(item)}
+              <span className="sidebar-link-icon">{item.icon}</span>
+              <span>{item.label}</span>
             </NavLink>
           ))}
         </nav>
@@ -58,30 +71,26 @@ export function AppLayout() {
             onClick={() => navigate('/app/reports')}
             aria-label="Open premium report section"
           >
-            <strong>Upgrade to Premium</strong>
-            <span>Get advanced analytics and payroll automations</span>
+            <strong>More Feature With HRMindsPro</strong>
+            <span>Upgrade your workspace to unlock more controls</span>
+            <span className="premium-cta">Upgrade Pro</span>
           </button>
 
-          <button
-            type="button"
-            className="premium-card"
-            onClick={() => navigate('/app/settings')}
-            aria-label="Open account settings"
-          >
-            <strong>{user?.name ?? 'Team Manager'}</strong>
-            <span>{user?.email ?? 'admin@hrminds.com'}</span>
-          </button>
-
-          <button
-            type="button"
-            className="btn btn-secondary w-full"
-            onClick={() => {
-              signOut()
-              navigate('/auth/login')
-            }}
-          >
-            Sign Out
-          </button>
+          <div className="sidebar-utility">
+            <button type="button" className="sidebar-utility-btn" onClick={() => navigate('/app/settings')}>
+              Setting
+            </button>
+            <button
+              type="button"
+              className="sidebar-utility-btn"
+              onClick={() => {
+                signOut()
+                navigate('/auth/login')
+              }}
+            >
+              Log Out
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -98,21 +107,21 @@ export function AppLayout() {
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 aria-label="Search app"
-                placeholder="Search here..."
+                placeholder="Search here.."
               />
               <button type="submit" aria-label="Submit search">
-                Search
+                <span>S</span>
               </button>
             </form>
 
-            <button type="button" className="icon-btn" onClick={() => push('Notifications opened.', 'info')}>
-              Notifications
+            <button type="button" className="icon-btn" onClick={() => push('Notifications opened.', 'info')} aria-label="Notifications">
+              N
             </button>
-            <button type="button" className="icon-btn" onClick={() => push('Inbox opened.', 'info')}>
-              Messages
+            <button type="button" className="icon-btn" onClick={() => push('Inbox opened.', 'info')} aria-label="Messages">
+              M
             </button>
             <button type="button" className="top-avatar" onClick={() => navigate('/app/settings')} aria-label="Open profile">
-              {user?.name?.[0] ?? 'A'}
+              U
             </button>
           </div>
         </header>

@@ -1,7 +1,8 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+﻿import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { AppLayout } from '../layouts/AppLayout'
 import { AuthLayout } from '../layouts/AuthLayout'
+import { AttendancePage } from '../pages/app/AttendancePage'
 import { DashboardPage } from '../pages/app/DashboardPage'
 import { EmployeesPage } from '../pages/app/EmployeesPage'
 import { StubSectionPage } from '../pages/app/StubSectionPage'
@@ -78,6 +79,9 @@ export function AppRouter() {
       >
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="employees" element={<EmployeesPage />} />
+        <Route path="attendance" element={<AttendancePage view="grid" />} />
+        <Route path="attendance/list" element={<AttendancePage view="list" />} />
+        <Route path="attendance/detail/:employeeId" element={<AttendancePage view="detail" />} />
         <Route path=":section" element={<StubSectionPage />} />
       </Route>
 
@@ -85,3 +89,4 @@ export function AppRouter() {
     </Routes>
   )
 }
+
