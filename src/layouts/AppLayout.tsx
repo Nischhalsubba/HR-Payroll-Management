@@ -1,18 +1,18 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { useToast } from '../context/ToastContext'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 
 const navItems = [
-  { key: 'dashboard', label: 'Dashboard', icon: 'D' },
-  { key: 'attendance', label: 'Attendance', icon: 'A' },
-  { key: 'employees', label: 'Employee', icon: 'E' },
-  { key: 'payroll', label: 'Payroll', icon: 'P' },
-  { key: 'calendar', label: 'People Calendar', icon: 'C' },
-  { key: 'reports', label: 'Training', icon: 'T' },
-  { key: 'departments', label: 'Recruitment', icon: 'R' },
-  { key: 'help', label: 'Application', icon: 'Ap' },
+  { key: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+  { key: 'attendance', label: 'Attendance', icon: 'attendance' },
+  { key: 'employees', label: 'Employee', icon: 'employee' },
+  { key: 'payroll', label: 'Payroll', icon: 'payroll' },
+  { key: 'calendar', label: 'People Calendar', icon: 'calendar' },
+  { key: 'reports', label: 'Training', icon: 'training' },
+  { key: 'departments', label: 'Recruitment', icon: 'recruitment' },
+  { key: 'help', label: 'Application', icon: 'application' },
 ]
 
 const sectionDescriptions: Record<string, string> = {
@@ -27,16 +27,134 @@ const sectionDescriptions: Record<string, string> = {
   help: 'Review application and help center.',
 }
 
+function AppIcon({ name, className }: { name: string; className?: string }) {
+  if (name === 'search') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+        <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" strokeWidth="1.7" />
+        <path d="M16.1 16.4L21 21" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      </svg>
+    )
+  }
+
+  if (name === 'notification') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+        <path
+          d="M7 10.2a5 5 0 0 1 10 0v4.1l1.5 2.1H5.5L7 14.3zM10.3 18.2a1.8 1.8 0 0 0 3.4 0"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    )
+  }
+
+  if (name === 'message') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+        <path d="M4.5 6.5h15v10h-8l-3.5 3v-3h-3.5z" fill="none" stroke="currentColor" strokeWidth="1.7" />
+      </svg>
+    )
+  }
+
+  if (name === 'slider') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+        <path d="M5 7h14M5 12h14M5 17h14" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      </svg>
+    )
+  }
+
+  if (name === 'dashboard') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+        <rect x="4" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <rect x="13" y="4" width="7" height="4" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <rect x="13" y="10" width="7" height="10" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <rect x="4" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      </svg>
+    )
+  }
+
+  if (name === 'attendance') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+        <rect x="4" y="5" width="16" height="15" rx="2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M8 3v4M16 3v4M4 10h16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+    )
+  }
+
+  if (name === 'employee') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+        <circle cx="12" cy="8.3" r="3.1" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M5 19a7 7 0 0 1 14 0" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+    )
+  }
+
+  if (name === 'payroll') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+        <rect x="4.5" y="5" width="15" height="14" rx="2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M8 10h8M8 14h5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+    )
+  }
+
+  if (name === 'calendar') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+        <rect x="4" y="5" width="16" height="15" rx="2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M4 10h16M8 3v4M16 3v4M8 14h2M12 14h2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      </svg>
+    )
+  }
+
+  if (name === 'training') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+        <path d="M5 7l7-3 7 3-7 3zM5 7v6l7 3 7-3V7" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      </svg>
+    )
+  }
+
+  if (name === 'recruitment') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+        <circle cx="10" cy="10" r="5.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M14.2 14.2L20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+    )
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+      <path d="M4 6h16M4 12h16M4 18h16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 export function AppLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const { push } = useToast()
-  const { signOut } = useAuth()
+  const { signOut, user } = useAuth()
   const [search, setSearch] = useState('')
 
   const section = location.pathname.split('/')[2] ?? 'dashboard'
-  const title = section === 'attendance' ? 'Attendance' : navItems.find((item) => item.key === section)?.label ?? 'Dashboard'
+  const title = navItems.find((item) => item.key === section)?.label ?? 'Dashboard'
   const subtitle = sectionDescriptions[section] ?? 'Manage your HR operations.'
+  const initials = user?.name
+    .split(' ')
+    .map((part) => part.charAt(0))
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || 'U'
 
   function onSearchSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -46,9 +164,22 @@ export function AppLayout() {
   return (
     <div className="dashboard-shell">
       <aside className="sidebar">
-        <div className="sidebar-brand-wrap">
-          <div className="sidebar-brand-logo">H</div>
+        <div className="sidebar-brand-wrap dashboard-shell-border">
+          <div className="sidebar-brand-logo">
+            <svg viewBox="0 0 31 32" aria-hidden="true" className="logo-mark">
+              <path
+                d="M7.3 6.3h16.4l-7.2 19.2H8.8l4.9-13.2h-6.4z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.1"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
           <div className="sidebar-brand">HRMinds</div>
+          <button type="button" className="sidebar-slider-btn" onClick={() => push('Sidebar toggled.', 'info')} aria-label="Toggle sidebar">
+            <AppIcon name="slider" className="icon-svg" />
+          </button>
         </div>
 
         <nav className="sidebar-nav" aria-label="Main">
@@ -58,7 +189,9 @@ export function AppLayout() {
               to={`/app/${item.key}`}
               className={({ isActive }) => (isActive ? 'sidebar-link active' : 'sidebar-link')}
             >
-              <span className="sidebar-link-icon">{item.icon}</span>
+              <span className="sidebar-link-icon">
+                <AppIcon name={item.icon} className="icon-svg" />
+              </span>
               <span>{item.label}</span>
             </NavLink>
           ))}
@@ -110,18 +243,23 @@ export function AppLayout() {
                 placeholder="Search here.."
               />
               <button type="submit" aria-label="Submit search">
-                <span>S</span>
+                <AppIcon name="search" className="icon-svg" />
               </button>
             </form>
 
-            <button type="button" className="icon-btn" onClick={() => push('Notifications opened.', 'info')} aria-label="Notifications">
-              N
+            <button
+              type="button"
+              className="icon-btn"
+              onClick={() => push('Notifications opened.', 'info')}
+              aria-label="Notifications"
+            >
+              <AppIcon name="notification" className="icon-svg" />
             </button>
             <button type="button" className="icon-btn" onClick={() => push('Inbox opened.', 'info')} aria-label="Messages">
-              M
+              <AppIcon name="message" className="icon-svg" />
             </button>
             <button type="button" className="top-avatar" onClick={() => navigate('/app/settings')} aria-label="Open profile">
-              U
+              {initials}
             </button>
           </div>
         </header>

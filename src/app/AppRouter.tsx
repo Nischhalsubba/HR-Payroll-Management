@@ -5,6 +5,7 @@ import { AuthLayout } from '../layouts/AuthLayout'
 import { AttendancePage } from '../pages/app/AttendancePage'
 import { DashboardPage } from '../pages/app/DashboardPage'
 import { EmployeesPage } from '../pages/app/EmployeesPage'
+import { PayrollPage } from '../pages/app/PayrollPage'
 import { StubSectionPage } from '../pages/app/StubSectionPage'
 import { OnboardingPage } from '../pages/OnboardingPage'
 import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage'
@@ -78,10 +79,12 @@ export function AppRouter() {
         }
       >
         <Route path="dashboard" element={<DashboardPage />} />
-        <Route path="employees" element={<EmployeesPage />} />
+        <Route path="employees" element={<EmployeesPage view="grid" />} />
+        <Route path="employees/detail/:employeeId" element={<EmployeesPage view="detail" />} />
         <Route path="attendance" element={<AttendancePage view="grid" />} />
         <Route path="attendance/list" element={<AttendancePage view="list" />} />
         <Route path="attendance/detail/:employeeId" element={<AttendancePage view="detail" />} />
+        <Route path="payroll" element={<PayrollPage />} />
         <Route path=":section" element={<StubSectionPage />} />
       </Route>
 

@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useNavigate, useParams } from 'react-router-dom'
 import { z } from 'zod'
 import { Button } from '../../components/ui/Button'
 import { Field } from '../../components/ui/Field'
@@ -38,6 +39,28 @@ const defaultQuery: EmployeeQuery = {
   departmentFilter: 'all',
 }
 
+type EmployeeView = 'grid' | 'detail'
+
+const rangeOptions = [
+  { value: '3_6_jan', label: '3 Jan - 6 Jan', from: '2026-01-03', to: '2026-01-06' },
+  { value: '7_14_jan', label: '7 Jan - 14 Jan', from: '2026-01-07', to: '2026-01-14' },
+  { value: '15_30_jan', label: '15 Jan - 30 Jan', from: '2026-01-15', to: '2026-01-30' },
+]
+
+const activityRows: Array<{
+  type: string
+  collaborator: string
+  description: string
+  status: 'Done' | 'In-Progress'
+}> = [
+  { type: 'Meeting', collaborator: '4 participant', description: 'Catch-Up Creative', status: 'In-Progress' },
+  { type: 'Attendance', collaborator: 'Me', description: 'Daily attendance', status: 'Done' },
+  { type: 'Meeting', collaborator: '25 participant', description: 'Monthly Evaluation', status: 'Done' },
+  { type: 'Meeting', collaborator: '5 participant', description: 'Stand Up', status: 'Done' },
+  { type: 'Retro', collaborator: '74 participant', description: 'Card session', status: 'Done' },
+  { type: 'Meeting', collaborator: '46 participant', description: 'Catch-Up Creative', status: 'Done' },
+]
+
 function nextStatus(status: EmployeeStatus): EmployeeStatus {
   if (status === 'active') {
     return 'on_leave'
@@ -50,6 +73,21 @@ function nextStatus(status: EmployeeStatus): EmployeeStatus {
 
 function toTitleStatus(status: EmployeeStatus): string {
   return status === 'on_leave' ? 'On-Leave' : status === 'inactive' ? 'In-Active' : 'Active'
+}
+
+function toInitials(name: string): string {
+  const [first = '', second = ''] = name.split(' ')
+  return `${first.charAt(0)}${second.charAt(0)}`.toUpperCase()
+}
+
+function pseudoHours(id: string): string {
+  const value = Number(id) % 24
+  return `${150 + value}:${500 + value}.621`
+}
+
+function pseudoManager(id: string): string {
+  const managers = ['Jackson Hubner', 'Maria Anders', 'Dwayne Ford', 'Olivia James']
+  return managers[Number(id) % managers.length]
 }
 
 function EmployeeFormModal({
@@ -160,9 +198,11 @@ function EmployeeFormModal({
   )
 }
 
-export function EmployeesPage() {
+function EmployeeGridView() {
+  const navigate = useNavigate()
   const { push } = useToast()
   const [query, setQuery] = useState<EmployeeQuery>(defaultQuery)
+  const [rangeKey, setRangeKey] = useState(rangeOptions[0].value)
   const [result, setResult] = useState<PaginatedResult<Employee>>({
     items: [],
     total: 0,
@@ -279,16 +319,17 @@ export function EmployeesPage() {
   }
 
   return (
-    <div className="panel stack-lg">
-      <div className="employees-header">
-        <div>
+    <section className="panel employee-grid-page stack-md">
+      <div className="employee-grid-head">
+        <div className="employee-grid-title">
           <h1>Employee List</h1>
           <p>{result.total} employees matched</p>
         </div>
 
-        <div className="employees-actions">
+        <div className="employee-grid-controls">
           <Button
             type="button"
+            className="employee-add-button"
             onClick={() => {
               setEditEmployee(null)
               setOpenModal(true)
@@ -297,10 +338,10 @@ export function EmployeesPage() {
             + Add Employee
           </Button>
 
-          <div className="filters-row">
-            <label>
-              <span>Date Preset</span>
+          <div className="employee-filter-pills">
+            <label className="employee-filter-pill">
               <select
+                aria-label="Date preset"
                 value={query.datePreset}
                 onChange={(event) => updateQuery({ datePreset: event.target.value as EmployeeQuery['datePreset'] })}
               >
@@ -311,47 +352,40 @@ export function EmployeesPage() {
               </select>
             </label>
 
-            <label>
-              <span>Range Start</span>
-              <input
-                type="date"
-                value={query.dateRange.from ?? ''}
-                onChange={(event) =>
-                  updateQuery({
-                    datePreset: 'custom',
-                    dateRange: {
-                      ...query.dateRange,
-                      from: event.target.value || undefined,
-                    },
-                  })
-                }
-              />
-            </label>
-
-            <label>
-              <span>Range End</span>
-              <input
-                type="date"
-                value={query.dateRange.to ?? ''}
-                onChange={(event) =>
-                  updateQuery({
-                    datePreset: 'custom',
-                    dateRange: {
-                      ...query.dateRange,
-                      to: event.target.value || undefined,
-                    },
-                  })
-                }
-              />
-            </label>
-
-            <label>
-              <span>Filter</span>
+            <label className="employee-filter-pill">
               <select
+                aria-label="Date range"
+                value={rangeKey}
+                onChange={(event) => {
+                  setRangeKey(event.target.value)
+                  const selected = rangeOptions.find((item) => item.value === event.target.value)
+                  if (!selected) {
+                    return
+                  }
+                  updateQuery({
+                    datePreset: 'custom',
+                    dateRange: {
+                      from: selected.from,
+                      to: selected.to,
+                    },
+                  })
+                }}
+              >
+                {rangeOptions.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="employee-filter-pill">
+              <select
+                aria-label="Filter department"
                 value={query.departmentFilter}
                 onChange={(event) => updateQuery({ departmentFilter: event.target.value })}
               >
-                <option value="all">All Departments</option>
+                <option value="all">Filter</option>
                 {departmentOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -360,9 +394,9 @@ export function EmployeesPage() {
               </select>
             </label>
 
-            <label>
-              <span>Sort by</span>
+            <label className="employee-filter-pill">
               <select
+                aria-label="Sort employees"
                 value={`${query.sortBy}:${query.sortDirection}`}
                 onChange={(event) => {
                   const [sortBy, sortDirection] = event.target.value.split(':') as [
@@ -372,11 +406,11 @@ export function EmployeesPage() {
                   updateQuery({ sortBy, sortDirection })
                 }}
               >
-                <option value="createdAt:desc">Newest</option>
-                <option value="createdAt:asc">Oldest</option>
-                <option value="name:asc">Name A-Z</option>
-                <option value="name:desc">Name Z-A</option>
-                <option value="department:asc">Department A-Z</option>
+                <option value="createdAt:desc">Short by: Newest</option>
+                <option value="createdAt:asc">Short by: Oldest</option>
+                <option value="name:asc">Short by: Name A-Z</option>
+                <option value="name:desc">Short by: Name Z-A</option>
+                <option value="department:asc">Short by: Department</option>
               </select>
             </label>
           </div>
@@ -430,7 +464,7 @@ export function EmployeesPage() {
 
       {!loading && !error && result.items.length > 0 ? (
         <div className="table-wrap">
-          <table className="employee-table">
+          <table className="employee-table employee-figma-table">
             <thead>
               <tr>
                 <th>ID</th>
@@ -448,9 +482,14 @@ export function EmployeesPage() {
                 const menuOpen = openActionsFor === employee.id
 
                 return (
-                  <tr key={employee.id}>
+                  <tr key={employee.id} onClick={() => navigate(`/app/employees/detail/${employee.id}`)}>
                     <td>{employee.employeeCode}</td>
-                    <td>{employee.name}</td>
+                    <td>
+                      <span className="employee-name-cell">
+                        <span className="employee-avatar">{toInitials(employee.name)}</span>
+                        <span>{employee.name}</span>
+                      </span>
+                    </td>
                     <td>{employee.email}</td>
                     <td>{employee.workType}</td>
                     <td>{employee.jobTitle}</td>
@@ -570,6 +609,258 @@ export function EmployeesPage() {
       >
         <p>This action cannot be undone.</p>
       </Modal>
-    </div>
+    </section>
   )
+}
+
+function EmployeeDetailView() {
+  const { employeeId = '' } = useParams()
+  const navigate = useNavigate()
+  const { push } = useToast()
+  const [employee, setEmployee] = useState<Employee | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [openEdit, setOpenEdit] = useState(false)
+
+  useEffect(() => {
+    const fetchEmployee = async () => {
+      setLoading(true)
+      setError('')
+
+      try {
+        const data = await employeeService.listEmployees({
+          ...defaultQuery,
+          search: '',
+          status: 'all',
+          page: 1,
+          perPage: 200,
+          datePreset: 'custom',
+          dateRange: {},
+          departmentFilter: 'all',
+        })
+        const found = data.items.find((item) => item.id === employeeId)
+        if (!found) {
+          setError('Employee not found.')
+          setEmployee(null)
+          return
+        }
+        setEmployee(found)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unable to load employee.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    void fetchEmployee()
+  }, [employeeId])
+
+  async function onSaveEmployee(value: EmployeeFormInput) {
+    if (!employee) {
+      return
+    }
+
+    try {
+      await employeeService.updateEmployee(employee.id, value)
+      const updated = { ...employee, ...value }
+      setEmployee(updated)
+      push('Employee updated.', 'success')
+    } catch (err) {
+      push(err instanceof Error ? err.message : 'Unable to update employee.', 'error')
+    }
+  }
+
+  async function onCycleStatus() {
+    if (!employee) {
+      return
+    }
+
+    try {
+      const updated = await employeeService.updateEmployeeStatus(employee.id, nextStatus(employee.status))
+      setEmployee(updated)
+      push('Employee status updated.', 'success')
+    } catch (err) {
+      push(err instanceof Error ? err.message : 'Unable to update status.', 'error')
+    }
+  }
+
+  if (loading) {
+    return (
+      <section className="panel status-box">
+        <p>Loading employee detail...</p>
+      </section>
+    )
+  }
+
+  if (error || !employee) {
+    return (
+      <section className="panel status-box error">
+        <p>{error || 'Employee not found.'}</p>
+        <Button type="button" onClick={() => navigate('/app/employees')}>
+          Back to Employee List
+        </Button>
+      </section>
+    )
+  }
+
+  return (
+    <section className="panel employee-detail-page">
+      <aside className="employee-detail-left">
+        <div className="employee-detail-cover" />
+        <span className="employee-detail-avatar">{toInitials(employee.name)}</span>
+        <div className="employee-detail-name">
+          <h2>{employee.name}</h2>
+          <p>{employee.email}</p>
+        </div>
+
+        <div className="employee-detail-meta">
+          <div>
+            <span>ID Employee</span>
+            <strong>{employee.employeeCode}</strong>
+          </div>
+          <div>
+            <span>Position</span>
+            <strong>{employee.jobTitle}</strong>
+          </div>
+          <div>
+            <span>Department</span>
+            <strong>{employee.department}</strong>
+          </div>
+          <div>
+            <span>Total Hours Work</span>
+            <strong>{pseudoHours(employee.id)}</strong>
+          </div>
+          <div>
+            <span>Location</span>
+            <strong>{employee.workType}</strong>
+          </div>
+          <div>
+            <span>Last Active</span>
+            <strong>Today, 03.24 PM</strong>
+          </div>
+          <div>
+            <span>Check-In</span>
+            <strong>08.00 AM</strong>
+          </div>
+          <div>
+            <span>Check-Out</span>
+            <strong>17.00 PM</strong>
+          </div>
+          <div>
+            <span>Employement Status</span>
+            <strong>{toTitleStatus(employee.status)}</strong>
+          </div>
+          <div>
+            <span>Day-Off Used</span>
+            <strong>{18 + (Number(employee.id) % 8)} day</strong>
+          </div>
+          <div>
+            <span>Line Manager</span>
+            <strong>{pseudoManager(employee.id)}</strong>
+          </div>
+        </div>
+
+        <Button type="button" variant="secondary" fullWidth onClick={() => setOpenEdit(true)}>
+          Edit Employee
+        </Button>
+        <Button type="button" variant="ghost" fullWidth onClick={() => void onCycleStatus()}>
+          Change Status
+        </Button>
+      </aside>
+
+      <div className="employee-detail-right">
+        <div className="employee-detail-kpi-row">
+          <article className="employee-graph-card">
+            <div className="employee-graph-head">
+              <strong>Performance Rate</strong>
+              <span>+4% increase</span>
+            </div>
+            <div className="employee-graph-bars" aria-label="Performance rate bars">
+              {Array.from({ length: 11 }, (_, index) => (
+                <span
+                  key={index}
+                  className="employee-graph-bar"
+                  style={{ height: `${22 + ((index * 7) % 48)}px` }}
+                />
+              ))}
+            </div>
+          </article>
+
+          <article className="employee-ring-card">
+            <div className="ring">63%</div>
+            <div>
+              <strong>Completed Task by Sprint</strong>
+              <span>4 pending task</span>
+            </div>
+          </article>
+        </div>
+
+        <article className="employee-recent-card">
+          <div className="employee-recent-head">
+            <h3>Recent Activity</h3>
+            <div className="employee-filter-pills">
+              <button type="button" className="chip-btn" onClick={() => push('Latest 3 Days selected.', 'info')}>
+                Latest 3 Days
+              </button>
+              <button type="button" className="chip-btn" onClick={() => push('Date range selected.', 'info')}>
+                3 Jan - 6 Jan
+              </button>
+            </div>
+          </div>
+
+          <div className="table-wrap">
+            <table className="employee-table">
+              <thead>
+                <tr>
+                  <th>Type Activity</th>
+                  <th>Collaborator</th>
+                  <th>Description</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {activityRows.map((activity, index) => (
+                  <tr key={`${activity.description}-${index}`}>
+                    <td>{activity.type}</td>
+                    <td>{activity.collaborator}</td>
+                    <td>{activity.description}</td>
+                    <td>
+                      <span className={activity.status === 'Done' ? 'att-status ontime' : 'att-status pending'}>
+                        {activity.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="inline-actions">
+            <Button type="button" variant="secondary" onClick={() => navigate('/app/employees')}>
+              Back to Employee List
+            </Button>
+            <Button type="button" onClick={() => push('New activity created.', 'success')}>
+              + New Activity
+            </Button>
+          </div>
+        </article>
+      </div>
+
+      <EmployeeFormModal
+        open={openEdit}
+        mode="edit"
+        employee={employee}
+        onClose={() => setOpenEdit(false)}
+        onSave={onSaveEmployee}
+      />
+    </section>
+  )
+}
+
+export function EmployeesPage({ view = 'grid' }: { view?: EmployeeView }) {
+  if (view === 'detail') {
+    return <EmployeeDetailView />
+  }
+
+  return <EmployeeGridView />
 }
