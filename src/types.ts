@@ -106,3 +106,11 @@ export interface Option {
   label: string
   value: string
 }
+
+export interface AppNavItemConfig {
+  label: string
+  path: string
+  icon: string
+  matchMode: 'prefix' | 'exact'
+  legacyPaths?: string[]
+}

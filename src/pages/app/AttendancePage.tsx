@@ -1,4 +1,4 @@
-﻿import { useMemo } from 'react'
+import { useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { useToast } from '../../context/ToastContext'
@@ -28,7 +28,7 @@ const rows: AttendanceRow[] = [
   {
     id: '5242',
     name: 'Arlene McCoy',
-    email: 'ar@hrminds.com',
+    email: 'ar@atlashr.com',
     location: 'Remote',
     position: 'Graphic Designer',
     checkIn: '08.00 AM',
@@ -38,7 +38,7 @@ const rows: AttendanceRow[] = [
   {
     id: '5541',
     name: 'Herna Marwis',
-    email: 'he@hrminds.com',
+    email: 'he@atlashr.com',
     location: 'Onsite',
     position: 'Marketing Staff',
     checkIn: '08.30 AM',
@@ -48,7 +48,7 @@ const rows: AttendanceRow[] = [
   {
     id: '7931',
     name: 'Joanda David',
-    email: 'jo@hrminds.com',
+    email: 'jo@atlashr.com',
     location: 'Onsite',
     position: 'Video Editor',
     checkIn: '00.00 AM',
@@ -58,7 +58,7 @@ const rows: AttendanceRow[] = [
   {
     id: '9514',
     name: 'Anna Davana',
-    email: 'an@hrminds.com',
+    email: 'an@atlashr.com',
     location: 'Remote',
     position: 'UX Writer',
     checkIn: '08.10 AM',
@@ -195,7 +195,7 @@ function AttendanceGridView({ onOpenList, onOpenDetail }: { onOpenList: () => vo
             <span className="att-profile-avatar" />
             <div>
               <strong>David Jack</strong>
-              <span>ar@hrminds.com</span>
+              <span>ar@atlashr.com</span>
             </div>
           </div>
 
@@ -283,7 +283,7 @@ function AttendanceDetailView({ employeeId }: { employeeId: string }) {
         <span className="attendance-detail-avatar" />
         <div className="attendance-detail-name">
           <h2>David Jack</h2>
-          <p>ar@hrminds.com</p>
+          <p>ar@atlashr.com</p>
         </div>
 
         <div className="attendance-detail-meta">
@@ -365,7 +365,7 @@ function AttendanceDetailView({ employeeId }: { employeeId: string }) {
           </div>
 
           <div className="inline-actions">
-            <Button type="button" variant="secondary" onClick={() => navigate('/app/attendance/list')}>
+            <Button type="button" variant="secondary" onClick={() => navigate('/app/attandence/list')}>
               Back To List
             </Button>
             <Button type="button" onClick={() => push('New activity created.', 'success')}>
@@ -383,7 +383,7 @@ export function AttendancePage({ view }: { view: AttendanceView }) {
   const { employeeId = '5242' } = useParams()
 
   if (view === 'list') {
-    return <AttendanceListView onOpenDetail={(id) => navigate(`/app/attendance/detail/${id}`)} />
+    return <AttendanceListView onOpenDetail={(id) => navigate(`/app/attandence/detail/${id}`)} />
   }
 
   if (view === 'detail') {
@@ -392,8 +392,8 @@ export function AttendancePage({ view }: { view: AttendanceView }) {
 
   return (
     <AttendanceGridView
-      onOpenList={() => navigate('/app/attendance/list')}
-      onOpenDetail={(id) => navigate(`/app/attendance/detail/${id}`)}
+      onOpenList={() => navigate('/app/attandence/list')}
+      onOpenDetail={(id) => navigate(`/app/attandence/detail/${id}`)}
     />
   )
 }

@@ -1,30 +1,58 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { TopNavNotifications } from '../components/app/TopNavNotifications'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
+import * as notificationService from '../services/notificationService'
 
-const navItems = [
-  { key: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
-  { key: 'attendance', label: 'Attendance', icon: 'attendance' },
-  { key: 'employees', label: 'Employee', icon: 'employee' },
-  { key: 'payroll', label: 'Payroll', icon: 'payroll' },
-  { key: 'calendar', label: 'People Calendar', icon: 'calendar' },
-  { key: 'reports', label: 'Training', icon: 'training' },
-  { key: 'departments', label: 'Recruitment', icon: 'recruitment' },
-  { key: 'help', label: 'Application', icon: 'application' },
+interface NavItem {
+  key: string
+  label: string
+  icon: string
+  path: string
+  legacyPaths?: string[]
+}
+
+const navItems: NavItem[] = [
+  { key: 'dashboard', label: 'Dashboard', icon: 'dashboard', path: '/app/dashboard' },
+  {
+    key: 'attandence',
+    label: 'Attandence',
+    icon: 'attendance',
+    path: '/app/attandence',
+    legacyPaths: ['/app/attendance'],
+  },
+  { key: 'employees', label: 'Employees', icon: 'employee', path: '/app/employees' },
+  { key: 'payroll', label: 'Payroll', icon: 'payroll', path: '/app/payroll' },
+  { key: 'payslip', label: 'Payslip', icon: 'payslip', path: '/app/payslip' },
+  { key: 'payroll-calendar', label: 'Payroll Calendar', icon: 'calendar', path: '/app/payroll-calendar' },
+  { key: 'report-analytics', label: 'Report & Analytics', icon: 'report', path: '/app/report-analytics' },
+  { key: 'vacancies', label: 'Vacancies', icon: 'vacancies', path: '/app/vacancies' },
+  { key: 'applicants', label: 'Applicants', icon: 'applicants', path: '/app/applicants' },
+  { key: 'leaves', label: 'Leaves', icon: 'leaves', path: '/app/leaves' },
+]
+
+const utilityItems: NavItem[] = [
+  { key: 'setting', label: 'Setting', icon: 'setting', path: '/app/setting' },
+  { key: 'help-center', label: 'Help Center', icon: 'info', path: '/app/help-center' },
 ]
 
 const sectionDescriptions: Record<string, string> = {
   dashboard: 'Key HR metrics and employee activity.',
+  attandence: 'Track employee attendance and daily schedules.',
   employees: 'Manage employee records and updates.',
-  attendance: 'Track employe attendance and manage daily.',
   payroll: 'Process salary, bonuses, and payouts.',
-  departments: 'Manage hiring pipeline and teams.',
-  reports: 'Plan training and track progress.',
-  calendar: 'Handle people calendar and schedules.',
-  settings: 'Control workspace and account preferences.',
-  help: 'Review application and help center.',
+  payslip: 'Review payroll slips and payout details.',
+  'payroll-calendar': 'Plan pay cycles and payroll milestones.',
+  'report-analytics': 'Track trends, exports, and metrics.',
+  vacancies: 'Manage open job positions and hiring needs.',
+  applicants: 'Review applicants and progression stages.',
+  leaves: 'Handle leave requests and team availability.',
+  setting: 'Control workspace and account preferences.',
+  'help-center': 'Review support resources and guides.',
+  notifications: 'Recent updates across payroll, attendance, and requests.',
+  profile: 'Manage your account details and security.',
 }
 
 function AppIcon({ name, className }: { name: string; className?: string }) {
@@ -91,8 +119,8 @@ function AppIcon({ name, className }: { name: string; className?: string }) {
   if (name === 'employee') {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
-        <circle cx="12" cy="8.3" r="3.1" fill="none" stroke="currentColor" strokeWidth="1.6" />
-        <path d="M5 19a7 7 0 0 1 14 0" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        <rect x="3.8" y="4.2" width="16.4" height="15.4" rx="2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M8 10h8M8 14h8" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
       </svg>
     )
   }
@@ -106,24 +134,36 @@ function AppIcon({ name, className }: { name: string; className?: string }) {
     )
   }
 
+  if (name === 'payslip') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+        <rect x="5" y="4.5" width="14" height="15" rx="2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M8 10h8M8 14h6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+    )
+  }
+
   if (name === 'calendar') {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
         <rect x="4" y="5" width="16" height="15" rx="2" fill="none" stroke="currentColor" strokeWidth="1.6" />
-        <path d="M4 10h16M8 3v4M16 3v4M8 14h2M12 14h2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M4 10h16M8 3v4M16 3v4" fill="none" stroke="currentColor" strokeWidth="1.6" />
       </svg>
     )
   }
 
-  if (name === 'training') {
+  if (name === 'report') {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
-        <path d="M5 7l7-3 7 3-7 3zM5 7v6l7 3 7-3V7" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <rect x="4.5" y="5" width="15" height="14" rx="2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <rect x="8" y="12" width="2.5" height="4" rx="0.6" fill="currentColor" />
+        <rect x="11.8" y="9" width="2.5" height="7" rx="0.6" fill="currentColor" />
+        <rect x="15.6" y="11" width="2.5" height="5" rx="0.6" fill="currentColor" />
       </svg>
     )
   }
 
-  if (name === 'recruitment') {
+  if (name === 'vacancies') {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
         <circle cx="10" cy="10" r="5.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
@@ -132,9 +172,36 @@ function AppIcon({ name, className }: { name: string; className?: string }) {
     )
   }
 
+  if (name === 'applicants') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+        <path d="M6 7h9l3 3v7.5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      </svg>
+    )
+  }
+
+  if (name === 'leaves') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+        <path d="M12 4l6.5 3.8v8.4L12 20 5.5 16.2V7.8z" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M12 4v16M5.5 7.8L12 12l6.5-4.2" fill="none" stroke="currentColor" strokeWidth="1.3" />
+      </svg>
+    )
+  }
+
+  if (name === 'setting') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+        <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M19.4 15l1-1.8-1-1.8-2.1-.4-.9-2-1.9-.8-1.7 1.1-1.7-1.1-1.9.8-.9 2-2.1.4-1 1.8 1 1.8 2.1.4.9 2 1.9.8 1.7-1.1 1.7 1.1 1.9-.8.9-2z" fill="none" stroke="currentColor" strokeWidth="1.2" />
+      </svg>
+    )
+  }
+
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
-      <path d="M4 6h16M4 12h16M4 18h16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M12 7v6M12 17h.01" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   )
 }
@@ -145,9 +212,16 @@ export function AppLayout() {
   const { push } = useToast()
   const { signOut, user } = useAuth()
   const [search, setSearch] = useState('')
+  const [showSearchSuggestions, setShowSearchSuggestions] = useState(false)
+  const [showNotifications, setShowNotifications] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+  const searchWrapRef = useRef<HTMLFormElement | null>(null)
+  const notificationWrapRef = useRef<HTMLDivElement | null>(null)
 
   const section = location.pathname.split('/')[2] ?? 'dashboard'
-  const title = navItems.find((item) => item.key === section)?.label ?? 'Dashboard'
+  const activeTitle =
+    [...navItems, ...utilityItems].find((item) => location.pathname.startsWith(item.path))?.label ??
+    (section === 'notifications' ? 'Notifications' : section === 'profile' ? 'Profile' : 'Dashboard')
   const subtitle = sectionDescriptions[section] ?? 'Manage your HR operations.'
   const initials = user?.name
     .split(' ')
@@ -156,9 +230,71 @@ export function AppLayout() {
     .slice(0, 2)
     .toUpperCase() || 'U'
 
+  const searchTargets = useMemo(
+    () => [
+      ...navItems.map((item) => ({ label: item.label, path: item.path })),
+      ...utilityItems.map((item) => ({ label: item.label, path: item.path })),
+      { label: 'Notifications', path: '/app/notifications' },
+      { label: 'Profile', path: '/app/profile' },
+    ],
+    [],
+  )
+
+  const searchMatches = useMemo(() => {
+    const value = search.trim().toLowerCase()
+    if (!value) {
+      return []
+    }
+    return searchTargets.filter((target) => target.label.toLowerCase().includes(value)).slice(0, 6)
+  }, [search, searchTargets])
+
+  useEffect(() => {
+    void notificationService.unreadCount().then(setUnreadCount)
+  }, [])
+
+  useEffect(() => {
+    const onPointerDown = (event: MouseEvent) => {
+      if (notificationWrapRef.current && !notificationWrapRef.current.contains(event.target as Node)) {
+        setShowNotifications(false)
+      }
+      if (searchWrapRef.current && !searchWrapRef.current.contains(event.target as Node)) {
+        setShowSearchSuggestions(false)
+      }
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setShowNotifications(false)
+        setShowSearchSuggestions(false)
+      }
+    }
+
+    window.addEventListener('mousedown', onPointerDown)
+    window.addEventListener('keydown', onKeyDown)
+
+    return () => {
+      window.removeEventListener('mousedown', onPointerDown)
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [])
+
   function onSearchSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    push(search.trim() ? `Search for "${search.trim()}" triggered.` : 'Enter a keyword to search.', 'info')
+    const value = search.trim().toLowerCase()
+    if (!value) {
+      push('Enter a keyword to search.', 'info')
+      return
+    }
+
+    const match = searchTargets.find((item) => item.label.toLowerCase().includes(value))
+    if (!match) {
+      push(`No result found for "${search.trim()}".`, 'error')
+      return
+    }
+    navigate(match.path)
+    push(`Opened ${match.label}.`, 'success')
+    setShowSearchSuggestions(false)
+    setSearch('')
   }
 
   return (
@@ -176,8 +312,13 @@ export function AppLayout() {
               />
             </svg>
           </div>
-          <div className="sidebar-brand">HRMinds</div>
-          <button type="button" className="sidebar-slider-btn" onClick={() => push('Sidebar toggled.', 'info')} aria-label="Toggle sidebar">
+          <div className="sidebar-brand">AtlasHR</div>
+          <button
+            type="button"
+            className="sidebar-slider-btn"
+            onClick={() => push('Sidebar compact mode toggled (mock).', 'info')}
+            aria-label="Toggle sidebar"
+          >
             <AppIcon name="slider" className="icon-svg" />
           </button>
         </div>
@@ -186,7 +327,7 @@ export function AppLayout() {
           {navItems.map((item) => (
             <NavLink
               key={item.key}
-              to={`/app/${item.key}`}
+              to={item.path}
               className={({ isActive }) => (isActive ? 'sidebar-link active' : 'sidebar-link')}
             >
               <span className="sidebar-link-icon">
@@ -201,18 +342,25 @@ export function AppLayout() {
           <button
             type="button"
             className="premium-card"
-            onClick={() => navigate('/app/reports')}
+            onClick={() => navigate('/app/report-analytics')}
             aria-label="Open premium report section"
           >
-            <strong>More Feature With HRMindsPro</strong>
+            <strong>More Feature With AtlasHR Premium</strong>
             <span>Upgrade your workspace to unlock more controls</span>
             <span className="premium-cta">Upgrade Pro</span>
           </button>
 
           <div className="sidebar-utility">
-            <button type="button" className="sidebar-utility-btn" onClick={() => navigate('/app/settings')}>
-              Setting
-            </button>
+            {utilityItems.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                className={location.pathname.startsWith(item.path) ? 'sidebar-utility-btn active' : 'sidebar-utility-btn'}
+                onClick={() => navigate(item.path)}
+              >
+                {item.label}
+              </button>
+            ))}
             <button
               type="button"
               className="sidebar-utility-btn"
@@ -230,35 +378,78 @@ export function AppLayout() {
       <section className="dashboard-content">
         <header className="dashboard-top-nav">
           <div className="top-nav-title">
-            <h1>{title}</h1>
+            <h1>{activeTitle}</h1>
             <p>{subtitle}</p>
           </div>
 
           <div className="top-nav-actions">
-            <form className="top-nav-search" onSubmit={onSearchSubmit}>
+            <form ref={searchWrapRef} className="top-nav-search" onSubmit={onSearchSubmit}>
               <input
                 value={search}
-                onChange={(event) => setSearch(event.target.value)}
+                onChange={(event) => {
+                  setSearch(event.target.value)
+                  setShowSearchSuggestions(true)
+                }}
+                onFocus={() => setShowSearchSuggestions(true)}
                 aria-label="Search app"
                 placeholder="Search here.."
               />
               <button type="submit" aria-label="Submit search">
                 <AppIcon name="search" className="icon-svg" />
               </button>
+              {showSearchSuggestions && searchMatches.length > 0 ? (
+                <div className="search-suggestions">
+                  {searchMatches.map((match) => (
+                    <button
+                      key={match.path}
+                      type="button"
+                      onClick={() => {
+                        navigate(match.path)
+                        setShowSearchSuggestions(false)
+                        setSearch('')
+                      }}
+                    >
+                      {match.label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
             </form>
+
+            <div ref={notificationWrapRef} className="notification-wrap">
+              <button
+                type="button"
+                className="icon-btn"
+                onClick={() => setShowNotifications((value) => !value)}
+                aria-label="Notifications"
+                aria-haspopup="menu"
+                aria-expanded={showNotifications}
+              >
+                <AppIcon name="notification" className="icon-svg" />
+                {unreadCount > 0 ? <span className="notification-badge">{Math.min(unreadCount, 99)}</span> : null}
+              </button>
+
+              {showNotifications ? (
+                <TopNavNotifications
+                  onClose={() => setShowNotifications(false)}
+                  onCountChange={setUnreadCount}
+                  onOpenDetail={(id) => {
+                    navigate(`/app/notifications/${id}`)
+                    setShowNotifications(false)
+                  }}
+                />
+              ) : null}
+            </div>
 
             <button
               type="button"
               className="icon-btn"
-              onClick={() => push('Notifications opened.', 'info')}
-              aria-label="Notifications"
+              onClick={() => push('Messages center opened (mock).', 'info')}
+              aria-label="Messages"
             >
-              <AppIcon name="notification" className="icon-svg" />
-            </button>
-            <button type="button" className="icon-btn" onClick={() => push('Inbox opened.', 'info')} aria-label="Messages">
               <AppIcon name="message" className="icon-svg" />
             </button>
-            <button type="button" className="top-avatar" onClick={() => navigate('/app/settings')} aria-label="Open profile">
+            <button type="button" className="top-avatar" onClick={() => navigate('/app/profile')} aria-label="Open profile">
               {initials}
             </button>
           </div>

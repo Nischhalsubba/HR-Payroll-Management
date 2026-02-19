@@ -22,7 +22,7 @@ describe('employee interactions', () => {
   it('creates, changes status, and deletes an employee', { timeout: 15_000 }, async () => {
     const user = userEvent.setup()
     const employeeName = `Automation Employee ${Date.now()}`
-    const employeeEmail = `automation.${Date.now()}@hrminds.com`
+    const employeeEmail = `automation.${Date.now()}@atlashr.com`
 
     renderApp('/auth/login')
 

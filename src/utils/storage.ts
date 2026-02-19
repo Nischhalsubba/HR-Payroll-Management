@@ -1,6 +1,6 @@
-const SESSION_KEY = 'hrminds_session'
-const ONBOARDING_KEY = 'hrminds_onboarding_done'
-const RESET_CONTEXT_KEY = 'hrminds_reset_context'
+const SESSION_KEY = 'atlashr_session'
+const ONBOARDING_KEY = 'atlashr_onboarding_done'
+const RESET_CONTEXT_KEY = 'atlashr_reset_context'
 
 export interface ResetContext {
   email: string

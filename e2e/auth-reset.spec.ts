@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 test('forgot password to reset journey', async ({ page }) => {
   await page.goto('/auth/forgot-password')
 
-  await page.getByLabel('Email').fill('admin@hrminds.com')
+  await page.getByLabel('Email').fill('admin@atlashr.com')
   await page.getByRole('button', { name: 'Send OTP' }).click()
 
   await expect(page.getByRole('heading', { name: 'Verify code' })).toBeVisible()
@@ -23,5 +23,5 @@ test('forgot password to reset journey', async ({ page }) => {
   await page.getByLabel('Confirm Password').fill('Password@456')
   await page.getByRole('button', { name: 'Save New Password' }).click()
 
-  await expect(page.getByRole('heading', { name: 'Welcome to HRMinds' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Welcome to AtlasHR' })).toBeVisible()
 })

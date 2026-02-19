@@ -80,7 +80,7 @@ export function OnboardingPage() {
         </div>
 
         <header className="phone-brand">
-          <span>HRMinds</span>
+          <span>AtlasHR</span>
           <Button type="button" variant="ghost" onClick={finish}>
             Skip
           </Button>

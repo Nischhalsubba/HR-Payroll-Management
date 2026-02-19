@@ -29,7 +29,7 @@ export function LoginPage() {
   } = useForm<FormValue>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: 'admin@hrminds.com',
+      email: 'admin@atlashr.com',
       password: 'Password@123',
     },
   })
@@ -51,7 +51,7 @@ export function LoginPage() {
 
   return (
     <div className="auth-card">
-      <h1>Welcome to HRMinds</h1>
+      <h1>Welcome to AtlasHR</h1>
       <p>Log in to continue managing employees, leaves, payroll, and daily operations.</p>
 
       <form className="stack-md" onSubmit={onSubmit}>

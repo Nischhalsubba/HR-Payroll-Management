@@ -4,7 +4,7 @@ export function AuthLayout() {
   return (
     <div className="auth-shell">
       <aside className="auth-visual" aria-hidden="true">
-        <div className="auth-brand">HRMinds</div>
+        <div className="auth-brand">AtlasHR</div>
         <div className="auth-dots">
           <span />
           <span />

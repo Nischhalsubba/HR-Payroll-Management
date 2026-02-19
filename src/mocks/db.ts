@@ -22,7 +22,7 @@ const accounts: Account[] = [
   {
     id: '1',
     name: 'Admin User',
-    email: 'admin@hrminds.com',
+    email: 'admin@atlashr.com',
     password: 'Password@123',
   },
 ]

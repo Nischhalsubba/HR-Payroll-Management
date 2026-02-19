@@ -23,7 +23,7 @@ describe('password reset flow', () => {
     const user = userEvent.setup()
     renderApp('/auth/forgot-password')
 
-    await user.type(screen.getByLabelText('Email'), 'admin@hrminds.com')
+    await user.type(screen.getByLabelText('Email'), 'admin@atlashr.com')
     await user.click(screen.getByRole('button', { name: 'Send OTP' }))
 
     await waitFor(() => {
@@ -45,7 +45,7 @@ describe('password reset flow', () => {
     await user.click(screen.getByRole('button', { name: 'Save New Password' }))
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Welcome to HRMinds' })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'Welcome to AtlasHR' })).toBeInTheDocument()
     })
   })
 })

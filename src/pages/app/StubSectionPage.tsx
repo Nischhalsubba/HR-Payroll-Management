@@ -1,86 +1,94 @@
 import { useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { useToast } from '../../context/ToastContext'
-import { toSentenceCase } from '../../utils/helpers'
 
 interface SectionConfig {
+  title: string
   subtitle: string
   metrics: Array<{ label: string; value: string }>
   actions: string[]
 }
 
 const sectionConfigs: Record<string, SectionConfig> = {
-  attendance: {
-    subtitle: 'Check-in patterns, shift compliance, and late trends.',
+  payslip: {
+    title: 'Payslip',
+    subtitle: 'Review and export employee payslip documents.',
     metrics: [
-      { label: 'On Time Today', value: '1,126' },
-      { label: 'Late Arrivals', value: '87' },
-      { label: 'Absence', value: '31' },
+      { label: 'Generated This Month', value: '126' },
+      { label: 'Pending Delivery', value: '14' },
+      { label: 'Downloaded', value: '98' },
     ],
-    actions: ['Approve Adjustment', 'Export Attendance', 'Notify Team'],
+    actions: ['Generate Batch', 'Export PDF', 'Send Reminder'],
   },
-  payroll: {
-    subtitle: 'Salary cycle health, pending payouts, and approvals.',
+  'payroll-calendar': {
+    title: 'Payroll Calendar',
+    subtitle: 'Track payroll milestones and processing checkpoints.',
     metrics: [
-      { label: 'This Month', value: '$730,000' },
-      { label: 'Pending', value: '$93,000' },
-      { label: 'Processed', value: '612' },
+      { label: 'Upcoming Deadlines', value: '7' },
+      { label: 'Cycles This Quarter', value: '3' },
+      { label: 'Tasks Completed', value: '18' },
     ],
-    actions: ['Run Payroll', 'Download Payslips', 'Open Audit'],
+    actions: ['Add Milestone', 'Reschedule', 'Sync Team'],
   },
-  departments: {
-    subtitle: 'Headcount distribution and department-level ownership.',
+  'report-analytics': {
+    title: 'Report & Analytics',
+    subtitle: 'Analyze workforce trends and export key operational reports.',
     metrics: [
-      { label: 'Total Departments', value: '12' },
-      { label: 'Open Roles', value: '38' },
-      { label: 'Managers', value: '24' },
+      { label: 'Reports Generated', value: '42' },
+      { label: 'Scheduled Jobs', value: '9' },
+      { label: 'CSV Exports', value: '27' },
     ],
-    actions: ['Add Department', 'Assign Lead', 'Sync Org Chart'],
+    actions: ['Build Report', 'Schedule Export', 'Share Dashboard'],
   },
-  reports: {
-    subtitle: 'KPI snapshots and historical HR analytics.',
+  vacancies: {
+    title: 'Vacancies',
+    subtitle: 'Manage open positions, priorities, and hiring progress.',
     metrics: [
-      { label: 'Generated Today', value: '17' },
-      { label: 'Scheduled', value: '6' },
-      { label: 'Exported', value: '39' },
+      { label: 'Open Positions', value: '15' },
+      { label: 'High Priority', value: '6' },
+      { label: 'Hiring Managers', value: '11' },
     ],
-    actions: ['Build Report', 'Schedule Report', 'Share Dashboard'],
+    actions: ['Create Vacancy', 'Assign Owner', 'Publish'],
   },
-  calendar: {
-    subtitle: 'Events, meetings, holidays, and upcoming deadlines.',
+  applicants: {
+    title: 'Applicants',
+    subtitle: 'Track candidates across sourcing and interview stages.',
     metrics: [
-      { label: 'Events Today', value: '9' },
-      { label: 'Interviews', value: '14' },
-      { label: 'Leaves Planned', value: '23' },
+      { label: 'New This Week', value: '34' },
+      { label: 'Interview Scheduled', value: '21' },
+      { label: 'Offers Sent', value: '5' },
     ],
-    actions: ['Create Event', 'Publish Holiday', 'Send Reminder'],
+    actions: ['Move Stage', 'Schedule Interview', 'Archive'],
   },
-  settings: {
-    subtitle: 'Workspace controls, permissions, and integrations.',
+  leaves: {
+    title: 'Leaves',
+    subtitle: 'Review leave requests and monitor team availability.',
     metrics: [
-      { label: 'Active Integrations', value: '8' },
-      { label: 'Roles', value: '16' },
-      { label: 'Policies', value: '11' },
+      { label: 'Pending Approvals', value: '8' },
+      { label: 'Approved This Week', value: '19' },
+      { label: 'Rejected', value: '2' },
     ],
-    actions: ['Manage Roles', 'Update Policy', 'Connect Tool'],
+    actions: ['Approve Batch', 'Export Calendar', 'Notify Team'],
   },
-  help: {
-    subtitle: 'Support channels, guides, and resolution tracking.',
+  'help-center': {
+    title: 'Help Center',
+    subtitle: 'Browse support resources and quick solutions.',
     metrics: [
-      { label: 'Open Tickets', value: '14' },
-      { label: 'Resolved Today', value: '22' },
-      { label: 'Avg Response', value: '9m' },
+      { label: 'Open Tickets', value: '12' },
+      { label: 'Resolved Today', value: '17' },
+      { label: 'SLA Met', value: '98%' },
     ],
-    actions: ['Open Ticket', 'Contact Support', 'Browse Docs'],
+    actions: ['Open Ticket', 'Contact Support', 'Browse Guides'],
   },
 }
 
 export function StubSectionPage() {
   const { section = 'section' } = useParams()
+  const navigate = useNavigate()
   const { push } = useToast()
-  const title = toSentenceCase(section)
   const config = sectionConfigs[section] ?? {
+    title: section,
     subtitle: 'Interactive section preview.',
     metrics: [
       { label: 'Primary KPI', value: '124' },
@@ -94,19 +102,19 @@ export function StubSectionPage() {
 
   const timeline = useMemo(
     () => [
-      `${title} sync completed`,
-      `${title} data refreshed`,
-      `${title} summary exported`,
-      `${title} notifications delivered`,
+      `${config.title} synchronized`,
+      `${config.title} refreshed`,
+      `${config.title} export completed`,
+      `${config.title} notifications delivered`,
     ],
-    [title],
+    [config.title],
   )
 
   return (
     <div className="stack-lg">
       <section className="panel stack-md">
         <div>
-          <h1>{title}</h1>
+          <h1>{config.title}</h1>
           <p>{config.subtitle}</p>
         </div>
 
@@ -116,7 +124,7 @@ export function StubSectionPage() {
               key={metric.label}
               type="button"
               className="stat-card"
-              onClick={() => push(`${title}: ${metric.label} opened.`, 'info')}
+              onClick={() => push(`${config.title}: ${metric.label} opened.`, 'info')}
             >
               <span>{metric.label}</span>
               <strong>{metric.value}</strong>
@@ -126,7 +134,7 @@ export function StubSectionPage() {
       </section>
 
       <section className="panel stack-md">
-        <div className="tabs-row" role="tablist" aria-label={`${title} actions`}>
+        <div className="tabs-row" role="tablist" aria-label={`${config.title} actions`}>
           {config.actions.map((action) => (
             <button
               key={action}
@@ -134,7 +142,7 @@ export function StubSectionPage() {
               className={activeAction === action ? 'tab-btn active' : 'tab-btn'}
               onClick={() => {
                 setActiveAction(action)
-                push(`${title}: ${action} triggered.`, 'success')
+                push(`${config.title}: ${action} triggered.`, 'success')
               }}
             >
               {action}
@@ -152,14 +160,15 @@ export function StubSectionPage() {
         </div>
 
         <div className="inline-actions">
-          <Button type="button" onClick={() => push(`${title}: ${activeAction} completed.`, 'success')}>
+          <Button type="button" onClick={() => push(`${config.title}: ${activeAction} completed.`, 'success')}>
             Confirm {activeAction}
           </Button>
-          <Button type="button" variant="secondary" onClick={() => push(`${title}: preview refreshed.`, 'info')}>
-            Refresh Preview
+          <Button type="button" variant="secondary" onClick={() => navigate('/app/dashboard')}>
+            Back to Dashboard
           </Button>
         </div>
       </section>
     </div>
   )
 }
+

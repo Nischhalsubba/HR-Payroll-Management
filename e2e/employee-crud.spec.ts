@@ -10,7 +10,7 @@ test('employee create, status update, and delete flow', async ({ page }) => {
   const dialog = page.getByRole('dialog', { name: 'Add Employee' })
 
   await dialog.getByRole('textbox', { name: 'Name' }).fill('E2E Employee')
-  await dialog.getByRole('textbox', { name: 'Email' }).fill('e2e.employee@hrminds.com')
+  await dialog.getByRole('textbox', { name: 'Email' }).fill('e2e.employee@atlashr.com')
   await dialog.getByRole('textbox', { name: 'Job Title' }).fill('Analyst')
   await dialog.getByRole('textbox', { name: 'Department' }).fill('HR')
   await dialog.getByRole('button', { name: 'Save' }).click()
