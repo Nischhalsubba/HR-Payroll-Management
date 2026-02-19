@@ -198,6 +198,15 @@ function AppIcon({ name, className }: { name: string; className?: string }) {
     )
   }
 
+  if (name === 'logout') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+        <path d="M10 5H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M14 8l4 4-4 4M9 12h9" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+    )
+  }
+
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
       <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="1.6" />
@@ -211,6 +220,14 @@ export function AppLayout() {
   const location = useLocation()
   const { push } = useToast()
   const { signOut, user } = useAuth()
+  const [sidebarCompact, setSidebarCompact] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('atlashr_sidebar_compact') === 'true'
+    } catch {
+      return false
+    }
+  })
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
@@ -253,6 +270,22 @@ export function AppLayout() {
   }, [])
 
   useEffect(() => {
+    localStorage.setItem('atlashr_sidebar_compact', sidebarCompact ? 'true' : 'false')
+  }, [sidebarCompact])
+
+  useEffect(() => {
+    if (!mobileNavOpen) {
+      return
+    }
+
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previous
+    }
+  }, [mobileNavOpen])
+
+  useEffect(() => {
     const onPointerDown = (event: MouseEvent) => {
       if (notificationWrapRef.current && !notificationWrapRef.current.contains(event.target as Node)) {
         setShowNotifications(false)
@@ -266,6 +299,7 @@ export function AppLayout() {
       if (event.key === 'Escape') {
         setShowNotifications(false)
         setShowSearchSuggestions(false)
+        setMobileNavOpen(false)
       }
     }
 
@@ -295,10 +329,18 @@ export function AppLayout() {
     push(`Opened ${match.label}.`, 'success')
     setShowSearchSuggestions(false)
     setSearch('')
+    setMobileNavOpen(false)
+    setShowNotifications(false)
   }
 
   return (
-    <div className="dashboard-shell">
+    <div className={`dashboard-shell${sidebarCompact ? ' sidebar-compact' : ''}${mobileNavOpen ? ' mobile-nav-open' : ''}`}>
+      <button
+        type="button"
+        className="sidebar-mobile-overlay"
+        onClick={() => setMobileNavOpen(false)}
+        aria-label="Close sidebar"
+      />
       <aside className="sidebar">
         <div className="sidebar-brand-wrap dashboard-shell-border">
           <div className="sidebar-brand-logo">
@@ -316,8 +358,9 @@ export function AppLayout() {
           <button
             type="button"
             className="sidebar-slider-btn"
-            onClick={() => push('Sidebar compact mode toggled (mock).', 'info')}
+            onClick={() => setSidebarCompact((value) => !value)}
             aria-label="Toggle sidebar"
+            aria-pressed={sidebarCompact}
           >
             <AppIcon name="slider" className="icon-svg" />
           </button>
@@ -329,11 +372,16 @@ export function AppLayout() {
               key={item.key}
               to={item.path}
               className={({ isActive }) => (isActive ? 'sidebar-link active' : 'sidebar-link')}
+              onClick={() => {
+                setMobileNavOpen(false)
+                setShowNotifications(false)
+                setShowSearchSuggestions(false)
+              }}
             >
               <span className="sidebar-link-icon">
                 <AppIcon name={item.icon} className="icon-svg" />
               </span>
-              <span>{item.label}</span>
+              <span className="sidebar-link-label">{item.label}</span>
             </NavLink>
           ))}
         </nav>
@@ -356,9 +404,19 @@ export function AppLayout() {
                 key={item.key}
                 type="button"
                 className={location.pathname.startsWith(item.path) ? 'sidebar-utility-btn active' : 'sidebar-utility-btn'}
-                onClick={() => navigate(item.path)}
+                onClick={() => {
+                  navigate(item.path)
+                  setMobileNavOpen(false)
+                  setShowNotifications(false)
+                  setShowSearchSuggestions(false)
+                }}
+                aria-label={item.label}
+                title={item.label}
               >
-                {item.label}
+                <span className="sidebar-link-icon">
+                  <AppIcon name={item.icon} className="icon-svg" />
+                </span>
+                <span className="sidebar-link-label">{item.label}</span>
               </button>
             ))}
             <button
@@ -367,9 +425,17 @@ export function AppLayout() {
               onClick={() => {
                 signOut()
                 navigate('/auth/login')
+                setMobileNavOpen(false)
+                setShowNotifications(false)
+                setShowSearchSuggestions(false)
               }}
+              aria-label="Log Out"
+              title="Log Out"
             >
-              Log Out
+              <span className="sidebar-link-icon">
+                <AppIcon name="logout" className="icon-svg" />
+              </span>
+              <span className="sidebar-link-label">Log Out</span>
             </button>
           </div>
         </div>
@@ -378,6 +444,14 @@ export function AppLayout() {
       <section className="dashboard-content">
         <header className="dashboard-top-nav">
           <div className="top-nav-title">
+            <button
+              type="button"
+              className="mobile-menu-btn icon-btn"
+              onClick={() => setMobileNavOpen(true)}
+              aria-label="Open sidebar menu"
+            >
+              <AppIcon name="slider" className="icon-svg" />
+            </button>
             <h1>{activeTitle}</h1>
             <p>{subtitle}</p>
           </div>
@@ -407,6 +481,8 @@ export function AppLayout() {
                         navigate(match.path)
                         setShowSearchSuggestions(false)
                         setSearch('')
+                        setMobileNavOpen(false)
+                        setShowNotifications(false)
                       }}
                     >
                       {match.label}
@@ -456,7 +532,9 @@ export function AppLayout() {
         </header>
 
         <div className="dashboard-body">
-          <Outlet />
+          <div className="route-fade" key={location.pathname}>
+            <Outlet />
+          </div>
         </div>
       </section>
     </div>

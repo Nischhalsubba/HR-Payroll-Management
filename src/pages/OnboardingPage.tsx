@@ -54,7 +54,7 @@ export function OnboardingPage() {
   const activeSlide = slides[active]
 
   return (
-    <main className="onboarding-shell">
+    <main className="onboarding-shell route-fade">
       <section
         className="phone-frame"
         onTouchStart={(event) => setTouchStart(event.changedTouches[0]?.clientX ?? null)}
@@ -86,7 +86,7 @@ export function OnboardingPage() {
           </Button>
         </header>
 
-        <article className="onboarding-slide" aria-live="polite">
+        <article className="onboarding-slide" aria-live="polite" key={active}>
           <div className="onboarding-slide-visual" aria-hidden="true">
             <div className="slide-line" />
             <div className="slide-line dim" />

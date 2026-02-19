@@ -1,6 +1,8 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 
 export function AuthLayout() {
+  const location = useLocation()
+
   return (
     <div className="auth-shell">
       <aside className="auth-visual" aria-hidden="true">
@@ -40,7 +42,9 @@ export function AuthLayout() {
       </aside>
 
       <main className="auth-main">
-        <Outlet />
+        <div className="route-fade" key={location.pathname}>
+          <Outlet />
+        </div>
       </main>
     </div>
   )
