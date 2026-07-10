@@ -1,8 +1,15 @@
 {
-  "name": "hr-payroll-management",
+  "name": "atlashr-payroll-management-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
+  "description": "A React and TypeScript HR payroll management frontend prototype with onboarding, auth, employee management, attendance, payroll, mock persistence, Vitest, and Playwright flows.",
+  "author": "Nischhal Raj Subba",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
