@@ -2,6 +2,103 @@
 
 # AtlasHR — HR Payroll Management Frontend
 
+<!-- interactive-readme-standard:start -->
+
+> [!NOTE]
+> **Branch-specific documentation:** this section is maintained for [`main`](https://github.com/Nischhalsubba/HR-Payroll-Management/tree/main). It is generated from the files present on this branch and preserves the project-authored README below.
+
+<details open>
+<summary><strong>Interactive repository guide</strong></summary>
+
+## Branch overview
+
+| Item | Value |
+|---|---|
+| Repository | [`Nischhalsubba/HR-Payroll-Management`](https://github.com/Nischhalsubba/HR-Payroll-Management) |
+| Branch | [`main`](https://github.com/Nischhalsubba/HR-Payroll-Management/tree/main) |
+| Detected stack | React, Vite, TypeScript, JavaScript, HTML, CSS |
+| Detected manifests | package.json |
+| Documentation policy | Every maintained branch must explain purpose, setup, structure, architecture, flows, testing, delivery, security, and ownership. |
+
+## Repository structure
+
+```mermaid
+flowchart TD
+    ROOT["HR-Payroll-Management / main"]
+    ROOT --> P0[".github/"]
+    ROOT --> P1["e2e/"]
+    ROOT --> P2["src/"]
+    ROOT --> P3[".gitignore"]
+    ROOT --> P4["eslint.config.js"]
+    ROOT --> P5["index.html"]
+    ROOT --> P6["package-lock.json"]
+    ROOT --> P7["package.json"]
+    ROOT --> P8["playwright.config.ts"]
+    ROOT --> P9["tsconfig.app.json"]
+    ROOT --> P10["tsconfig.json"]
+    ROOT --> P11["tsconfig.node.json"]
+    ROOT --> P12["vite.config.ts"]
+```
+
+The diagram is generated from the branch's actual top-level files and directories. Use the branch link above for complete source navigation.
+
+## Website or application structure
+
+```mermaid
+flowchart TD
+    APP["HR-Payroll-Management"]
+    APP --> R0["src/app"]
+    APP --> R1["src/pages"]
+    R0 --> F0["src/app/AppRouter.tsx"]
+    R1 --> F1["src/pages/OnboardingPage.tsx"]
+    R1 --> F2["src/pages/app/AttendancePage.tsx"]
+    R1 --> F3["src/pages/app/DashboardPage.tsx"]
+    R1 --> F4["src/pages/app/EmployeesPage.tsx"]
+    R1 --> F5["src/pages/app/NotificationsPage.tsx"]
+    R1 --> F6["src/pages/app/PayrollPage.tsx"]
+    R1 --> F7["src/pages/app/ProfilePage.tsx"]
+    R1 --> F8["src/pages/app/SettingPage.tsx"]
+    R1 --> F9["src/pages/app/StubSectionPage.tsx"]
+    R1 --> F10["src/pages/auth/ForgotPasswordPage.tsx"]
+    R1 --> F11["src/pages/auth/LoginPage.tsx"]
+```
+
+## Application and responsibility flow
+
+```mermaid
+flowchart LR
+    ACTOR["User / contributor"]
+    ACTOR --> A0["Interface: src"]
+    A0 --> A1["Quality: e2e"]
+    A1 --> A2["Delivery: .github"]
+    A2 --> DELIVERY["Delivery: GitHub Actions"]
+```
+
+## Change-to-delivery flow
+
+```mermaid
+flowchart LR
+    CHANGE["Change on main"]
+    CHECK["Validate: npm run dev, npm run build, npm run test, npm run lint, npm run typecheck"]
+    REVIEW["Review documentation and architecture impact"]
+    RELEASE["Merge, release, or deploy according to this branch"]
+    CHANGE --> CHECK --> REVIEW --> RELEASE
+```
+
+## README requirements for this branch
+
+- Explain what this branch contains and how it differs from the default branch.
+- Keep installation, configuration, usage, testing, deployment, security, support, and license information accurate.
+- Document repository, website or application, API, data, authentication, background-job, and deployment flows when they exist.
+- Prefer Mermaid diagrams and expandable `<details>` sections for visual navigation.
+- Link diagrams and modules to real source paths; never invent missing components.
+- Preserve project-specific documentation and update diagrams whenever architecture or major paths change.
+- Treat secrets, private infrastructure, customer data, and credentials as prohibited README content.
+
+</details>
+
+<!-- interactive-readme-standard:end -->
+
 ### Design-System-Driven HR Dashboard Experience
 
 **A React + TypeScript + Vite frontend for an HR and payroll management product, featuring onboarding, authentication, employee management, attendance, payroll, notifications, profile, settings, mock persistence, and tested user flows.**
