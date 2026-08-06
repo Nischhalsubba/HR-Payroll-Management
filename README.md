@@ -1,26 +1,59 @@
-<div align="center">
-
-# AtlasHR — HR Payroll Management Frontend
-
 <!-- interactive-readme-standard:start -->
 
-> [!NOTE]
-> **Branch-specific documentation:** this section is maintained for [`main`](https://github.com/Nischhalsubba/HR-Payroll-Management/tree/main). It is generated from the files present on this branch and preserves the project-authored README below.
+<div align="center">
 
-<details open>
-<summary><strong>Interactive repository guide</strong></summary>
+# HR-Payroll-Management
 
-## Branch overview
+**Branch-aware technical guide for [`main`](https://github.com/Nischhalsubba/HR-Payroll-Management/tree/main)**
 
-| Item | Value |
+<p><img alt="branch: main" src="https://img.shields.io/static/v1?label=&message=branch%3A%20main&color=5965F2&style=flat-square"> <img alt="React" src="https://img.shields.io/static/v1?label=&message=React&color=24292F&style=flat-square"> <img alt="Vite" src="https://img.shields.io/static/v1?label=&message=Vite&color=24292F&style=flat-square"> <img alt="TypeScript" src="https://img.shields.io/static/v1?label=&message=TypeScript&color=24292F&style=flat-square"> <img alt="JavaScript" src="https://img.shields.io/static/v1?label=&message=JavaScript&color=24292F&style=flat-square"> <img alt="HTML" src="https://img.shields.io/static/v1?label=&message=HTML&color=24292F&style=flat-square"> <img alt="CSS" src="https://img.shields.io/static/v1?label=&message=CSS&color=24292F&style=flat-square"> <img alt="docs: branch-aware" src="https://img.shields.io/static/v1?label=&message=docs%3A%20branch-aware&color=8250DF&style=flat-square"></p>
+
+<p>
+  <a href="https://github.com/Nischhalsubba/HR-Payroll-Management/tree/main"><strong>Browse source</strong></a> ·
+  <a href="https://github.com/Nischhalsubba/HR-Payroll-Management/issues"><strong>Issues</strong></a> ·
+  <a href="https://github.com/Nischhalsubba/HR-Payroll-Management/codespaces/new?ref=main"><strong>Open in Codespaces</strong></a>
+</p>
+
+</div>
+
+> [!IMPORTANT]
+> This guide is generated from the files actually present on `main`. It links to detected source paths, preserves project-authored notes, and avoids claiming components that were not found.
+
+## At a glance
+
+| Item | Detected value |
 |---|---|
-| Repository | [`Nischhalsubba/HR-Payroll-Management`](https://github.com/Nischhalsubba/HR-Payroll-Management) |
-| Branch | [`main`](https://github.com/Nischhalsubba/HR-Payroll-Management/tree/main) |
-| Detected stack | React, Vite, TypeScript, JavaScript, HTML, CSS |
-| Detected manifests | package.json |
-| Documentation policy | Every maintained branch must explain purpose, setup, structure, architecture, flows, testing, delivery, security, and ownership. |
+| Purpose | A React and TypeScript HR payroll management frontend prototype with onboarding, auth, employee management, attendance, payroll, mock persistence, Vitest, and Playwright flows. |
+| Branch role | Default branch |
+| Stack | React, Vite, TypeScript, JavaScript, HTML, CSS |
+| Manifests | package.json |
+| Prerequisites | Node.js |
+| Delivery | GitHub Actions |
+| License | No license file detected |
 
-## Repository structure
+## Branch scope
+
+This is the repository's default branch.
+
+
+
+## Quick start
+
+```bash
+npm install
+npm run dev
+npm run build
+npm run test
+npm run lint
+```
+
+### Configuration surface
+
+- No committed environment example file was detected.
+
+> Never commit secrets, private keys, production credentials, customer data, or unredacted infrastructure details.
+
+## Repository map
 
 ```mermaid
 flowchart TD
@@ -40,9 +73,13 @@ flowchart TD
     ROOT --> P12["vite.config.ts"]
 ```
 
-The diagram is generated from the branch's actual top-level files and directories. Use the branch link above for complete source navigation.
+| Responsibility | Detected source paths |
+|---|---|
+| Interface | [`src`](https://github.com/Nischhalsubba/HR-Payroll-Management/tree/main/src) |
+| Quality | [`e2e`](https://github.com/Nischhalsubba/HR-Payroll-Management/tree/main/e2e) |
+| Delivery | [`.github`](https://github.com/Nischhalsubba/HR-Payroll-Management/tree/main/.github) |
 
-## Website or application structure
+## Website or application map
 
 ```mermaid
 flowchart TD
@@ -51,53 +88,152 @@ flowchart TD
     APP --> R1["src/pages"]
     R0 --> F0["src/app/AppRouter.tsx"]
     R1 --> F1["src/pages/OnboardingPage.tsx"]
-    R1 --> F2["src/pages/app/AttendancePage.tsx"]
-    R1 --> F3["src/pages/app/DashboardPage.tsx"]
-    R1 --> F4["src/pages/app/EmployeesPage.tsx"]
-    R1 --> F5["src/pages/app/NotificationsPage.tsx"]
-    R1 --> F6["src/pages/app/PayrollPage.tsx"]
-    R1 --> F7["src/pages/app/ProfilePage.tsx"]
-    R1 --> F8["src/pages/app/SettingPage.tsx"]
+    R1 --> F2["src/pages/auth/ForgotPasswordPage.tsx"]
+    R1 --> F3["src/pages/auth/LoginPage.tsx"]
+    R1 --> F4["src/pages/auth/ResetPasswordPage.tsx"]
+    R1 --> F5["src/pages/auth/OtpPage.tsx"]
+    R1 --> F6["src/pages/auth/SignupPage.tsx"]
+    R1 --> F7["src/pages/app/SettingPage.tsx"]
+    R1 --> F8["src/pages/app/AttendancePage.tsx"]
     R1 --> F9["src/pages/app/StubSectionPage.tsx"]
-    R1 --> F10["src/pages/auth/ForgotPasswordPage.tsx"]
-    R1 --> F11["src/pages/auth/LoginPage.tsx"]
+    R1 --> F10["src/pages/app/NotificationsPage.tsx"]
+    R1 --> F11["src/pages/app/DashboardPage.tsx"]
 ```
 
-## Application and responsibility flow
+## Architecture and responsibility flow
 
 ```mermaid
 flowchart LR
-    ACTOR["User / contributor"]
-    ACTOR --> A0["Interface: src"]
+    USER["User / contributor"]
+    USER --> A0["Interface: src"]
     A0 --> A1["Quality: e2e"]
     A1 --> A2["Delivery: .github"]
     A2 --> DELIVERY["Delivery: GitHub Actions"]
 ```
 
-## Change-to-delivery flow
+<details>
+<summary><strong>Authentication and authorization flow</strong></summary>
 
 ```mermaid
 flowchart LR
-    CHANGE["Change on main"]
-    CHECK["Validate: npm run dev, npm run build, npm run test, npm run lint, npm run typecheck"]
-    REVIEW["Review documentation and architecture impact"]
-    RELEASE["Merge, release, or deploy according to this branch"]
-    CHANGE --> CHECK --> REVIEW --> RELEASE
+    USER["User"] --> SIGNIN["Sign-in or identity step"]
+    SIGNIN --> VERIFY["Verify credentials / session"]
+    VERIFY --> AUTHORIZE["Resolve permissions"]
+    AUTHORIZE --> PROTECTED["Protected feature or data"]
+    VERIFY -->|failure| RECOVER["Error or recovery path"]
 ```
 
-## README requirements for this branch
+Relevant detected files: [`e2e/auth-reset.spec.ts`](https://github.com/Nischhalsubba/HR-Payroll-Management/blob/main/e2e/auth-reset.spec.ts), [`src/layouts/AuthLayout.tsx`](https://github.com/Nischhalsubba/HR-Payroll-Management/blob/main/src/layouts/AuthLayout.tsx), [`src/tests/authFlow.test.tsx`](https://github.com/Nischhalsubba/HR-Payroll-Management/blob/main/src/tests/authFlow.test.tsx), [`src/services/authService.ts`](https://github.com/Nischhalsubba/HR-Payroll-Management/blob/main/src/services/authService.ts), [`src/context/AuthContext.tsx`](https://github.com/Nischhalsubba/HR-Payroll-Management/blob/main/src/context/AuthContext.tsx), [`src/pages/auth/ForgotPasswordPage.tsx`](https://github.com/Nischhalsubba/HR-Payroll-Management/blob/main/src/pages/auth/ForgotPasswordPage.tsx), [`src/pages/auth/LoginPage.tsx`](https://github.com/Nischhalsubba/HR-Payroll-Management/blob/main/src/pages/auth/LoginPage.tsx), [`src/pages/auth/ResetPasswordPage.tsx`](https://github.com/Nischhalsubba/HR-Payroll-Management/blob/main/src/pages/auth/ResetPasswordPage.tsx), [`src/pages/auth/OtpPage.tsx`](https://github.com/Nischhalsubba/HR-Payroll-Management/blob/main/src/pages/auth/OtpPage.tsx), [`src/pages/auth/SignupPage.tsx`](https://github.com/Nischhalsubba/HR-Payroll-Management/blob/main/src/pages/auth/SignupPage.tsx).
 
-- Explain what this branch contains and how it differs from the default branch.
-- Keep installation, configuration, usage, testing, deployment, security, support, and license information accurate.
-- Document repository, website or application, API, data, authentication, background-job, and deployment flows when they exist.
-- Prefer Mermaid diagrams and expandable `<details>` sections for visual navigation.
-- Link diagrams and modules to real source paths; never invent missing components.
-- Preserve project-specific documentation and update diagrams whenever architecture or major paths change.
-- Treat secrets, private infrastructure, customer data, and credentials as prohibited README content.
+> The diagram expresses the responsibility sequence only. Confirm exact providers, token formats, roles, and recovery behavior in the linked source.
+
+</details>
+
+## Quality, security, and operations
+
+<table>
+<tr>
+<td width="33%" valign="top">
+
+### Quality
+
+- [`e2e`](https://github.com/Nischhalsubba/HR-Payroll-Management/tree/main/e2e)
+
+Detected commands:
+- `npm run dev`
+- `npm run build`
+- `npm run test`
+- `npm run lint`
+- `npm run typecheck`
+- `npm run preview`
+
+</td>
+<td width="33%" valign="top">
+
+### Security
+
+- No dedicated security policy or automated dependency configuration was detected.
+
+Review authentication, authorization, input validation, dependency updates, secret handling, and failure recovery before release.
+
+</td>
+<td width="34%" valign="top">
+
+### Observability
+
+- No dedicated observability integration was detected automatically.
+
+Define useful logs, metrics, traces, alerts, and rollback signals for production-facing branches.
+
+</td>
+</tr>
+</table>
+
+## Delivery flow
+
+```mermaid
+flowchart LR
+    CHANGE["Change on main"] --> CHECK["Tests and quality checks"]
+    CHECK --> REVIEW["Review architecture and documentation impact"]
+    REVIEW --> BUILD["Build or package"]
+    BUILD --> DEPLOY["Deploy or release"]
+    DEPLOY --> VERIFY["Verify health and rollback readiness"]
+```
+
+### Automation detected
+
+- [`.github/workflows/apply-interactive-readme.yml`](https://github.com/Nischhalsubba/HR-Payroll-Management/blob/main/.github/workflows/apply-interactive-readme.yml)
+
+## Contribution flow
+
+```mermaid
+flowchart LR
+    FORK["Create branch"] --> CHANGE["Make focused change"]
+    CHANGE --> TEST["Run relevant checks"]
+    TEST --> DOCS["Update README and diagrams"]
+    DOCS --> PR["Open pull request"]
+    PR --> REVIEW["Review and iterate"]
+    REVIEW --> MERGE["Merge when ready"]
+```
+
+- Keep changes focused and explain architectural consequences.
+- Run the checks relevant to the changed area.
+- Update diagrams whenever routes, modules, data models, authentication, jobs, or delivery paths change.
+- Add screenshots or recordings for visual behavior changes when useful.
+- Use issues for reproducible defects and pull requests for reviewable changes.
+
+## Ownership and support
+
+| Topic | Source |
+|---|---|
+| Repository | [`Nischhalsubba/HR-Payroll-Management`](https://github.com/Nischhalsubba/HR-Payroll-Management) |
+| Branch | [`main`](https://github.com/Nischhalsubba/HR-Payroll-Management/tree/main) |
+| Ownership | No CODEOWNERS file detected |
+| Contributing | Use the contribution flow above |
+| Support | [Open or review issues](https://github.com/Nischhalsubba/HR-Payroll-Management/issues) |
+| License | No license file detected |
+
+<details>
+<summary><strong>Documentation maintenance checklist</strong></summary>
+
+- [ ] Purpose and branch scope are accurate.
+- [ ] Setup and configuration commands still work.
+- [ ] Repository, application, API, data, authentication, job, and deployment diagrams match the code.
+- [ ] Tests, security controls, observability, and rollback behavior are documented.
+- [ ] Links point to real files on this branch.
+- [ ] No secrets or private operational details are exposed.
 
 </details>
 
 <!-- interactive-readme-standard:end -->
+
+<!-- project-authored-notes:start -->
+<details>
+<summary><strong>Project-authored notes preserved from this branch</strong></summary>
+
+<div align="center">
+
+# AtlasHR — HR Payroll Management Frontend
 
 ### Design-System-Driven HR Dashboard Experience
 
@@ -469,3 +605,6 @@ http://localhost:5173
 Built as a polished HR dashboard frontend prototype with real interaction depth, not just static screens.
 
 </div>
+
+</details>
+<!-- project-authored-notes:end -->
