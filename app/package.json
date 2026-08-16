@@ -6,9 +6,10 @@
   "description": "A React and TypeScript HR payroll management frontend prototype with onboarding, auth, employee management, attendance, payroll, mock persistence, Vitest, and Playwright flows.",
   "author": "Nischhal Raj Subba",
   "license": "UNLICENSED",
+  "packageManager": "npm@11.17.0",
   "engines": {
-    "node": ">=22.0.0",
-    "npm": ">=10.0.0"
+    "node": "24.x",
+    "npm": "11.x"
   },
   "scripts": {
     "dev": "vite",
