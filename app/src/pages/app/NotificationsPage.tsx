@@ -24,16 +24,29 @@ function NotificationsCenterView() {
   const [status, setStatus] = useState<'all' | NotificationStatus>('all')
   const [search, setSearch] = useState('')
 
-  async function refresh() {
-    setLoading(true)
+  async function refreshItems() {
     const rows = await notificationService.listNotifications(status)
     setItems(rows)
     setLoading(false)
   }
 
+  function selectStatus(nextStatus: 'all' | NotificationStatus) {
+    setLoading(true)
+    setStatus(nextStatus)
+  }
+
   useEffect(() => {
-    void refresh()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let cancelled = false
+
+    void notificationService.listNotifications(status).then((rows) => {
+      if (cancelled) return
+      setItems(rows)
+      setLoading(false)
+    })
+
+    return () => {
+      cancelled = true
+    }
   }, [status])
 
   const filtered = useMemo(() => {
@@ -57,8 +70,9 @@ function NotificationsCenterView() {
             type="button"
             variant="secondary"
             onClick={async () => {
+              setLoading(true)
               await notificationService.markAllNotificationsRead()
-              await refresh()
+              await refreshItems()
               push('All notifications marked as read.', 'success')
             }}
           >
@@ -68,8 +82,9 @@ function NotificationsCenterView() {
             type="button"
             variant="secondary"
             onClick={async () => {
+              setLoading(true)
               await notificationService.clearReadNotifications()
-              await refresh()
+              await refreshItems()
               push('Read notifications cleared.', 'success')
             }}
           >
@@ -79,17 +94,17 @@ function NotificationsCenterView() {
       </div>
 
       <div className="tabs-row" role="tablist" aria-label="Notification status tabs">
-        <button type="button" className={status === 'all' ? 'tab-btn active' : 'tab-btn'} onClick={() => setStatus('all')}>
+        <button type="button" className={status === 'all' ? 'tab-btn active' : 'tab-btn'} onClick={() => selectStatus('all')}>
           All
         </button>
         <button
           type="button"
           className={status === 'unread' ? 'tab-btn active' : 'tab-btn'}
-          onClick={() => setStatus('unread')}
+          onClick={() => selectStatus('unread')}
         >
           Unread
         </button>
-        <button type="button" className={status === 'read' ? 'tab-btn active' : 'tab-btn'} onClick={() => setStatus('read')}>
+        <button type="button" className={status === 'read' ? 'tab-btn active' : 'tab-btn'} onClick={() => selectStatus('read')}>
           Read
         </button>
       </div>
@@ -102,7 +117,14 @@ function NotificationsCenterView() {
           placeholder="Search notifications..."
           aria-label="Search notifications"
         />
-        <Button type="button" variant="secondary" onClick={() => void refresh()}>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => {
+            setLoading(true)
+            void refreshItems()
+          }}
+        >
           Refresh
         </Button>
       </div>
@@ -140,22 +162,38 @@ function NotificationDetailView() {
   const [error, setError] = useState('')
   const [confirmDelete, setConfirmDelete] = useState(false)
 
-  async function refresh() {
-    setLoading(true)
-    setError('')
+  async function refreshItem() {
     const found = await notificationService.getNotificationById(notificationId)
     if (!found) {
+      setItem(null)
       setError('Notification not found.')
       setLoading(false)
       return
     }
     setItem(found)
+    setError('')
     setLoading(false)
   }
 
   useEffect(() => {
-    void refresh()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let cancelled = false
+
+    void notificationService.getNotificationById(notificationId).then((found) => {
+      if (cancelled) return
+      if (!found) {
+        setItem(null)
+        setError('Notification not found.')
+        setLoading(false)
+        return
+      }
+      setItem(found)
+      setError('')
+      setLoading(false)
+    })
+
+    return () => {
+      cancelled = true
+    }
   }, [notificationId])
 
   if (loading) {
@@ -166,7 +204,15 @@ function NotificationDetailView() {
     return (
       <section className="panel status-box error">
         <p>{error}</p>
-        <Button type="button" variant="secondary" onClick={() => void refresh()}>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => {
+            setLoading(true)
+            setError('')
+            void refreshItem()
+          }}
+        >
           Retry
         </Button>
         <Button type="button" onClick={() => navigate('/app/notifications')}>
@@ -194,7 +240,7 @@ function NotificationDetailView() {
           onClick={async () => {
             const nextStatus: NotificationStatus = item.status === 'read' ? 'unread' : 'read'
             await notificationService.markNotificationStatus(item.id, nextStatus)
-            await refresh()
+            await refreshItem()
             push(`Notification marked as ${nextStatus}.`, 'success')
           }}
         >
