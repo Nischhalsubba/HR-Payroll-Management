@@ -25,8 +25,7 @@ export function TopNavNotifications({ onCountChange, onOpenDetail, onClose }: To
   const unreadItems = useMemo(() => items.filter((item) => item.status === 'unread'), [items])
   const readItems = useMemo(() => items.filter((item) => item.status === 'read'), [items])
 
-  async function refresh() {
-    setLoading(true)
+  async function refreshItems() {
     const [rows, unread] = await Promise.all([notificationService.listNotifications(), notificationService.unreadCount()])
     setItems(rows)
     onCountChange(unread)
@@ -34,9 +33,19 @@ export function TopNavNotifications({ onCountChange, onOpenDetail, onClose }: To
   }
 
   useEffect(() => {
-    void refresh()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    let cancelled = false
+
+    void Promise.all([notificationService.listNotifications(), notificationService.unreadCount()]).then(([rows, unread]) => {
+      if (cancelled) return
+      setItems(rows)
+      onCountChange(unread)
+      setLoading(false)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [onCountChange])
 
   return (
     <div className="notification-dropdown" role="menu" aria-label="Notifications menu">
@@ -47,8 +56,9 @@ export function TopNavNotifications({ onCountChange, onOpenDetail, onClose }: To
             type="button"
             className="text-link"
             onClick={async () => {
+              setLoading(true)
               await notificationService.markAllNotificationsRead()
-              await refresh()
+              await refreshItems()
             }}
           >
             Mark all read
@@ -57,8 +67,9 @@ export function TopNavNotifications({ onCountChange, onOpenDetail, onClose }: To
             type="button"
             className="text-link"
             onClick={async () => {
+              setLoading(true)
               await notificationService.clearReadNotifications()
-              await refresh()
+              await refreshItems()
             }}
           >
             Clear read
@@ -118,4 +129,3 @@ export function TopNavNotifications({ onCountChange, onOpenDetail, onClose }: To
     </div>
   )
 }
-

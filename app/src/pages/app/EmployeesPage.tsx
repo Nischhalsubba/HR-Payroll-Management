@@ -238,13 +238,11 @@ function EmployeeGridView() {
   }, [openActionsFor])
 
   async function fetchData(nextQuery: EmployeeQuery) {
-    setLoading(true)
-    setError('')
-
     try {
       const data = await employeeService.listEmployees(nextQuery)
       setResult(data)
       setQuery((prev) => ({ ...prev, ...nextQuery, page: data.page, perPage: data.perPage }))
+      setError('')
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unable to load employees.'
       setError(message)
@@ -254,8 +252,27 @@ function EmployeeGridView() {
   }
 
   useEffect(() => {
-    void fetchData(query)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let cancelled = false
+
+    void employeeService.listEmployees(query).then(
+      (data) => {
+        if (cancelled) return
+        setResult(data)
+        setQuery((prev) => ({ ...prev, page: data.page, perPage: data.perPage }))
+        setError('')
+        setLoading(false)
+      },
+      (err: unknown) => {
+        if (cancelled) return
+        const message = err instanceof Error ? err.message : 'Unable to load employees.'
+        setError(message)
+        setLoading(false)
+      },
+    )
+
+    return () => {
+      cancelled = true
+    }
   }, [
     query.search,
     query.status,
@@ -270,6 +287,8 @@ function EmployeeGridView() {
   ])
 
   const updateQuery = (patch: Partial<EmployeeQuery>) => {
+    setLoading(true)
+    setError('')
     setQuery((prev) => ({
       ...prev,
       ...patch,
@@ -286,6 +305,8 @@ function EmployeeGridView() {
         await employeeService.createEmployee(value)
         push('Employee created.', 'success')
       }
+      setLoading(true)
+      setError('')
       await fetchData({ ...query, page: 1 })
       setEditEmployee(null)
     } catch (err) {
@@ -302,6 +323,8 @@ function EmployeeGridView() {
       await employeeService.deleteEmployee(deleteEmployeeId)
       push('Employee deleted.', 'success')
       setDeleteEmployeeId(null)
+      setLoading(true)
+      setError('')
       await fetchData({ ...query, page: 1 })
     } catch (err) {
       push(err instanceof Error ? err.message : 'Unable to delete employee.', 'error')
@@ -312,6 +335,8 @@ function EmployeeGridView() {
     try {
       await employeeService.updateEmployeeStatus(employee.id, nextStatus(employee.status))
       push('Status updated.', 'success')
+      setLoading(true)
+      setError('')
       await fetchData(query)
     } catch (err) {
       push(err instanceof Error ? err.message : 'Unable to update status.', 'error')
@@ -438,7 +463,15 @@ function EmployeeGridView() {
           onChange={(event) => updateQuery({ search: event.target.value })}
           aria-label="Search employees"
         />
-        <Button type="button" variant="secondary" onClick={() => fetchData(query)}>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => {
+            setLoading(true)
+            setError('')
+            void fetchData(query)
+          }}
+        >
           Refresh
         </Button>
       </div>
@@ -447,7 +480,14 @@ function EmployeeGridView() {
       {error ? (
         <div className="status-box error">
           <p>{error}</p>
-          <Button type="button" onClick={() => fetchData(query)}>
+          <Button
+            type="button"
+            onClick={() => {
+              setLoading(true)
+              setError('')
+              void fetchData(query)
+            }}
+          >
             Retry
           </Button>
         </div>
@@ -456,7 +496,15 @@ function EmployeeGridView() {
       {!loading && !error && result.items.length === 0 ? (
         <div className="status-box">
           <p>No employees found for this filter set.</p>
-          <Button type="button" variant="secondary" onClick={() => setQuery(defaultQuery)}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => {
+              setLoading(true)
+              setError('')
+              setQuery(defaultQuery)
+            }}
+          >
             Clear filters
           </Button>
         </div>
@@ -623,36 +671,43 @@ function EmployeeDetailView() {
   const [openEdit, setOpenEdit] = useState(false)
 
   useEffect(() => {
-    const fetchEmployee = async () => {
-      setLoading(true)
-      setError('')
+    let cancelled = false
 
-      try {
-        const data = await employeeService.listEmployees({
-          ...defaultQuery,
-          search: '',
-          status: 'all',
-          page: 1,
-          perPage: 200,
-          datePreset: 'custom',
-          dateRange: {},
-          departmentFilter: 'all',
-        })
-        const found = data.items.find((item) => item.id === employeeId)
-        if (!found) {
-          setError('Employee not found.')
-          setEmployee(null)
-          return
-        }
-        setEmployee(found)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unable to load employee.')
-      } finally {
-        setLoading(false)
-      }
+    void employeeService
+      .listEmployees({
+        ...defaultQuery,
+        search: '',
+        status: 'all',
+        page: 1,
+        perPage: 200,
+        datePreset: 'custom',
+        dateRange: {},
+        departmentFilter: 'all',
+      })
+      .then(
+        (data) => {
+          if (cancelled) return
+          const found = data.items.find((item) => item.id === employeeId)
+          if (!found) {
+            setError('Employee not found.')
+            setEmployee(null)
+            setLoading(false)
+            return
+          }
+          setEmployee(found)
+          setError('')
+          setLoading(false)
+        },
+        (err: unknown) => {
+          if (cancelled) return
+          setError(err instanceof Error ? err.message : 'Unable to load employee.')
+          setLoading(false)
+        },
+      )
+
+    return () => {
+      cancelled = true
     }
-
-    void fetchEmployee()
   }, [employeeId])
 
   async function onSaveEmployee(value: EmployeeFormInput) {

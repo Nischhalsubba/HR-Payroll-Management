@@ -18,9 +18,9 @@ export function OtpPage() {
   const [digits, setDigits] = useState<string[]>(Array.from({ length: 6 }, () => ''))
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
-  const [resendAt, setResendAt] = useState(Date.now() + 30_000)
-  const [expiresAt, setExpiresAt] = useState(Date.now() + 120_000)
-  const [now, setNow] = useState(Date.now())
+  const [resendAt, setResendAt] = useState(0)
+  const [expiresAt, setExpiresAt] = useState(0)
+  const [now, setNow] = useState(0)
 
   const context = loadResetContext()
 
@@ -31,15 +31,23 @@ export function OtpPage() {
   }, [context, navigate])
 
   const code = useMemo(() => digits.join(''), [digits])
-  const expiresIn = Math.max(0, Math.floor((expiresAt - now) / 1000))
-  const resendIn = Math.max(0, Math.floor((resendAt - now) / 1000))
+  const expiresIn = expiresAt === 0 ? 120 : Math.max(0, Math.floor((expiresAt - now) / 1000))
+  const resendIn = resendAt === 0 ? 30 : Math.max(0, Math.floor((resendAt - now) / 1000))
 
   useEffect(() => {
+    const initializeTimer = window.setTimeout(() => {
+      const startedAt = Date.now()
+      setNow(startedAt)
+      setResendAt(startedAt + 30_000)
+      setExpiresAt(startedAt + 120_000)
+    }, 0)
+
     const timer = window.setInterval(() => {
       setNow(Date.now())
     }, 1000)
 
     return () => {
+      window.clearTimeout(initializeTimer)
       window.clearInterval(timer)
     }
   }, [])
