@@ -20,15 +20,14 @@ interface OtpRequest {
 
 const employees: Employee[] = seedEmployees(54)
 
-const accounts: Account[] = [
-  {
-    id: '1',
-    name: 'Admin User',
-    email: 'admin@atlashr.com',
-    password: 'Password@123',
-  },
-]
+const defaultAccount: Account = {
+  id: '1',
+  name: 'Admin User',
+  email: 'admin@atlashr.com',
+  password: 'Password@123',
+}
 
+const accounts: Account[] = [{ ...defaultAccount }]
 const otpRequests = new Map<string, OtpRequest>()
 
 export function getEmployees(): Employee[] {
@@ -113,4 +112,10 @@ export function consumeResetToken(requestId: string, email: string, token: strin
 
 export function clearOtpRequest(requestId: string): void {
   otpRequests.delete(requestId)
+}
+
+export function resetDemoData(): void {
+  employees.splice(0, employees.length, ...seedEmployees(54))
+  accounts.splice(0, accounts.length, { ...defaultAccount })
+  otpRequests.clear()
 }

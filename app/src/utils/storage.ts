@@ -1,6 +1,7 @@
 const SESSION_KEY = 'atlashr_session'
 const ONBOARDING_KEY = 'atlashr_onboarding_done'
 const RESET_CONTEXT_KEY = 'atlashr_reset_context'
+const SIDEBAR_KEY = 'atlashr_sidebar_compact'
 
 export interface ResetContext {
   email: string
@@ -62,4 +63,13 @@ export function loadResetContext(): ResetContext | null {
 
 export function clearResetContext(): void {
   sessionStorage.removeItem(RESET_CONTEXT_KEY)
+}
+
+export function resetDemoStorage(): void {
+  for (const storage of [localStorage, sessionStorage]) {
+    storage.removeItem(SESSION_KEY)
+    storage.removeItem(ONBOARDING_KEY)
+    storage.removeItem(RESET_CONTEXT_KEY)
+    storage.removeItem(SIDEBAR_KEY)
+  }
 }
