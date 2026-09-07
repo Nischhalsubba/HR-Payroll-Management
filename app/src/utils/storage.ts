@@ -9,14 +9,19 @@ export interface ResetContext {
 }
 
 export function saveSession(value: string): void {
-  localStorage.setItem(SESSION_KEY, value)
+  sessionStorage.setItem(SESSION_KEY, value)
+  // Retire the older persistent demo-session path. The prototype must not
+  // silently restore an authenticated state after the browser session ends.
+  localStorage.removeItem(SESSION_KEY)
 }
 
 export function loadSession(): string | null {
-  return localStorage.getItem(SESSION_KEY)
+  localStorage.removeItem(SESSION_KEY)
+  return sessionStorage.getItem(SESSION_KEY)
 }
 
 export function clearSession(): void {
+  sessionStorage.removeItem(SESSION_KEY)
   localStorage.removeItem(SESSION_KEY)
 }
 
@@ -39,8 +44,18 @@ export function loadResetContext(): ResetContext | null {
   }
 
   try {
-    return JSON.parse(raw) as ResetContext
+    const value = JSON.parse(raw) as Partial<ResetContext>
+    if (typeof value.email !== 'string' || typeof value.requestId !== 'string') {
+      sessionStorage.removeItem(RESET_CONTEXT_KEY)
+      return null
+    }
+    if (value.resetToken !== undefined && typeof value.resetToken !== 'string') {
+      sessionStorage.removeItem(RESET_CONTEXT_KEY)
+      return null
+    }
+    return value as ResetContext
   } catch {
+    sessionStorage.removeItem(RESET_CONTEXT_KEY)
     return null
   }
 }
