@@ -1,7 +1,8 @@
+import type { CSSProperties } from 'react'
 import { resetDemoData } from '../../mocks/db'
 import { resetDemoStorage } from '../../utils/storage'
 
-const boundaryStyle: React.CSSProperties = {
+const boundaryStyle: CSSProperties = {
   alignItems: 'center',
   background: '#fff8e6',
   borderBottom: '1px solid #e6c96e',
@@ -17,7 +18,7 @@ const boundaryStyle: React.CSSProperties = {
   zIndex: 1000,
 }
 
-const buttonStyle: React.CSSProperties = {
+const buttonStyle: CSSProperties = {
   background: '#4d3b00',
   border: 0,
   borderRadius: '0.4rem',
