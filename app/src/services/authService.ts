@@ -9,14 +9,18 @@ import type {
 } from '../types'
 import {
   clearOtpRequest,
+  consumeResetToken,
   getAccounts,
   getOtpRequest,
+  issueResetToken,
   markOtpVerified,
   saveOtpRequest,
   toAuthUser,
   upsertAccount,
 } from '../mocks/db'
 import { wait } from '../utils/helpers'
+
+const RESET_TOKEN_TTL_MS = 10 * 60 * 1000
 
 function createError(code: string, message: string): ApiError {
   return { code, message }
@@ -87,6 +91,7 @@ export async function verifyOtp(payload: VerifyOtpInput): Promise<VerifyOtpResul
   }
 
   if (Date.now() > request.expiresAt) {
+    clearOtpRequest(payload.requestId)
     throw createError('OTP_EXPIRED', 'OTP expired. Please request a new code.')
   }
 
@@ -95,10 +100,15 @@ export async function verifyOtp(payload: VerifyOtpInput): Promise<VerifyOtpResul
   }
 
   markOtpVerified(payload.requestId)
+  const resetToken = createId('token')
+  const issued = issueResetToken(payload.requestId, resetToken, Date.now() + RESET_TOKEN_TTL_MS)
+  if (!issued) {
+    throw createError('RESET_CONTEXT_INVALID', 'Password reset session is invalid.')
+  }
 
   return {
     email: payload.email,
-    resetToken: createId('token'),
+    resetToken,
   }
 }
 
@@ -111,8 +121,9 @@ export async function resetPassword(payload: ResetPasswordInput): Promise<boolea
     throw createError('EMAIL_NOT_FOUND', 'Account not found.')
   }
 
-  if (!payload.resetToken.startsWith('token_')) {
-    throw createError('TOKEN_INVALID', 'Reset token is invalid.')
+  const authorized = consumeResetToken(payload.requestId, payload.email, payload.resetToken)
+  if (!authorized) {
+    throw createError('TOKEN_INVALID', 'Reset token is invalid or expired.')
   }
 
   upsertAccount({
@@ -131,15 +142,17 @@ export async function resendOtp(requestId: string): Promise<{ expiresAt: number 
     throw createError('RESET_CONTEXT_INVALID', 'Password reset session is invalid.')
   }
 
+  const expiresAt = Date.now() + 2 * 60 * 1000
   saveOtpRequest({
-    ...request,
-    expiresAt: Date.now() + 2 * 60 * 1000,
+    requestId: request.requestId,
+    email: request.email,
+    expiresAt,
     code: '157428',
     verified: false,
   })
 
   return {
-    expiresAt: Date.now() + 2 * 60 * 1000,
+    expiresAt,
   }
 }
 

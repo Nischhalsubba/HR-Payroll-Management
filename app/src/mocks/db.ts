@@ -14,6 +14,8 @@ interface OtpRequest {
   code: string
   expiresAt: number
   verified: boolean
+  resetToken?: string
+  resetTokenExpiresAt?: number
 }
 
 const employees: Employee[] = seedEmployees(54)
@@ -73,6 +75,40 @@ export function markOtpVerified(requestId: string): void {
     ...otp,
     verified: true,
   })
+}
+
+export function issueResetToken(requestId: string, token: string, expiresAt: number): boolean {
+  const otp = otpRequests.get(requestId)
+  if (!otp?.verified) {
+    return false
+  }
+
+  otpRequests.set(requestId, {
+    ...otp,
+    resetToken: token,
+    resetTokenExpiresAt: expiresAt,
+  })
+  return true
+}
+
+export function consumeResetToken(requestId: string, email: string, token: string): boolean {
+  const otp = otpRequests.get(requestId)
+  const valid = Boolean(
+    otp?.verified &&
+      otp.email.toLowerCase() === email.toLowerCase() &&
+      otp.resetToken === token &&
+      otp.resetTokenExpiresAt &&
+      Date.now() <= otp.resetTokenExpiresAt,
+  )
+
+  if (!valid) {
+    return false
+  }
+
+  // Reset authorization is one-time. Consuming it also retires the OTP request
+  // so the same verified browser flow cannot change the password twice.
+  otpRequests.delete(requestId)
+  return true
 }
 
 export function clearOtpRequest(requestId: string): void {

@@ -57,6 +57,7 @@ export function ResetPasswordPage() {
     try {
       await authService.resetPassword({
         email,
+        requestId,
         resetToken,
         password: value.password,
       })

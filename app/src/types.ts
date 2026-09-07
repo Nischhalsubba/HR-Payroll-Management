@@ -98,6 +98,7 @@ export interface VerifyOtpResult {
 
 export interface ResetPasswordInput {
   email: string
+  requestId: string
   resetToken: string
   password: string
 }
