@@ -23,12 +23,12 @@
     "check": "npm run lint && npm run typecheck && npm run test:run && npm run build"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.2.2",
+    "@hookform/resolvers": "^5.9.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-hook-form": "^7.71.1",
-    "react-router-dom": "7.18.2",
-    "zod": "^4.3.6"
+    "react-hook-form": "^7.87.0",
+    "react-router-dom": "7.18.3",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
