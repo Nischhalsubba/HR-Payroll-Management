@@ -21,13 +21,20 @@ import {
 import { wait } from '../utils/helpers'
 
 const RESET_TOKEN_TTL_MS = 10 * 60 * 1000
+const RANDOM_ID_BYTES = 16
 
 function createError(code: string, message: string): ApiError {
   return { code, message }
 }
 
+function createRandomHex(byteLength = RANDOM_ID_BYTES): string {
+  const bytes = new Uint8Array(byteLength)
+  globalThis.crypto.getRandomValues(bytes)
+  return Array.from(bytes, (value) => value.toString(16).padStart(2, '0')).join('')
+}
+
 function createId(prefix: string): string {
-  return `${prefix}_${Math.random().toString(36).slice(2, 10)}`
+  return `${prefix}_${createRandomHex()}`
 }
 
 export async function login(payload: LoginInput) {

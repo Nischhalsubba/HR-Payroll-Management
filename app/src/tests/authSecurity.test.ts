@@ -31,6 +31,7 @@ describe('prototype auth security boundaries', () => {
     })
 
     const request = await authService.requestPasswordReset(email)
+    expect(request.requestId).toMatch(/^reset_[0-9a-f]{32}$/)
 
     await expect(
       authService.resetPassword({
@@ -46,6 +47,7 @@ describe('prototype auth security boundaries', () => {
       requestId: request.requestId,
       code: '157428',
     })
+    expect(verified.resetToken).toMatch(/^token_[0-9a-f]{32}$/)
 
     await expect(
       authService.resetPassword({
@@ -66,5 +68,34 @@ describe('prototype auth security boundaries', () => {
     ).rejects.toMatchObject({ code: 'TOKEN_INVALID' })
 
     await expect(authService.login({ email, password: 'ChangedPassword2' })).resolves.toMatchObject({ email })
+  })
+
+  it('issues unique reset request identifiers and bearer tokens', async () => {
+    const email = `unique-${Date.now()}@example.test`
+    await authService.signup({
+      name: 'Unique Token User',
+      email,
+      password: 'StartPassword1',
+      confirmPassword: 'StartPassword1',
+    })
+
+    const firstRequest = await authService.requestPasswordReset(email)
+    const secondRequest = await authService.requestPasswordReset(email)
+    expect(firstRequest.requestId).not.toBe(secondRequest.requestId)
+
+    const firstVerified = await authService.verifyOtp({
+      email,
+      requestId: firstRequest.requestId,
+      code: '157428',
+    })
+    const secondVerified = await authService.verifyOtp({
+      email,
+      requestId: secondRequest.requestId,
+      code: '157428',
+    })
+
+    expect(firstVerified.resetToken).toMatch(/^token_[0-9a-f]{32}$/)
+    expect(secondVerified.resetToken).toMatch(/^token_[0-9a-f]{32}$/)
+    expect(firstVerified.resetToken).not.toBe(secondVerified.resetToken)
   })
 })
