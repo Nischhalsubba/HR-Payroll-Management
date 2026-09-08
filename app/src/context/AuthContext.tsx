@@ -12,17 +12,48 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
+function parseAuthUser(raw: string): AuthUser | null {
+  try {
+    const value: unknown = JSON.parse(raw)
+    if (!value || typeof value !== 'object') {
+      return null
+    }
+
+    const candidate = value as Partial<AuthUser>
+    if (
+      typeof candidate.id !== 'string' ||
+      candidate.id.trim() === '' ||
+      typeof candidate.name !== 'string' ||
+      candidate.name.trim() === '' ||
+      typeof candidate.email !== 'string' ||
+      candidate.email.trim() === ''
+    ) {
+      return null
+    }
+
+    return {
+      id: candidate.id,
+      name: candidate.name,
+      email: candidate.email,
+    }
+  } catch {
+    return null
+  }
+}
+
 function initUser(): AuthUser | null {
   const raw = loadSession()
   if (!raw) {
     return null
   }
 
-  try {
-    return JSON.parse(raw) as AuthUser
-  } catch {
+  const user = parseAuthUser(raw)
+  if (!user) {
+    clearSession()
     return null
   }
+
+  return user
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
