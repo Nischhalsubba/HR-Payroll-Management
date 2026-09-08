@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import type { AppSettings } from '../types/settings'
 import { wait } from '../utils/helpers'
+import { readCanonicalLocalStorage } from '../utils/persistedState'
 
 const STORAGE_KEY = 'atlashr_settings'
 
@@ -23,25 +25,50 @@ const defaults: AppSettings = {
   },
 }
 
-function load(): AppSettings {
-  const raw = localStorage.getItem(STORAGE_KEY)
-  if (!raw) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults))
-    return structuredClone(defaults)
-  }
+const settingsPatchSchema = z.object({
+  orgName: z.string().trim().min(1).optional(),
+  timezone: z.string().trim().min(1).optional(),
+  dateFormat: z.enum(['MMM d, yyyy', 'dd/MM/yyyy', 'MM/dd/yyyy']).optional(),
+  security: z
+    .object({
+      sessionTimeoutMinutes: z.number().int().min(1).max(24 * 60).optional(),
+      twoFactorEnabled: z.boolean().optional(),
+    })
+    .optional(),
+  notifications: z
+    .object({
+      emailDigest: z.boolean().optional(),
+      inAppAlerts: z.boolean().optional(),
+      leaveAlerts: z.boolean().optional(),
+      payrollAlerts: z.boolean().optional(),
+    })
+    .optional(),
+  appearance: z
+    .object({
+      density: z.enum(['comfortable', 'compact']).optional(),
+      accent: z.enum(['blue', 'orange']).optional(),
+    })
+    .optional(),
+})
 
-  try {
-    const parsed = JSON.parse(raw) as AppSettings
-    return {
-      ...defaults,
-      ...parsed,
-      security: { ...defaults.security, ...parsed.security },
-      notifications: { ...defaults.notifications, ...parsed.notifications },
-      appearance: { ...defaults.appearance, ...parsed.appearance },
-    }
-  } catch {
-    return structuredClone(defaults)
-  }
+function load(): AppSettings {
+  return readCanonicalLocalStorage(
+    STORAGE_KEY,
+    (value) => {
+      const parsed = settingsPatchSchema.safeParse(value)
+      if (!parsed.success) {
+        return null
+      }
+      return {
+        ...defaults,
+        ...parsed.data,
+        security: { ...defaults.security, ...parsed.data.security },
+        notifications: { ...defaults.notifications, ...parsed.data.notifications },
+        appearance: { ...defaults.appearance, ...parsed.data.appearance },
+      }
+    },
+    () => structuredClone(defaults),
+  )
 }
 
 function save(next: AppSettings): void {
@@ -64,4 +91,3 @@ export async function resetSettings(): Promise<AppSettings> {
   save(defaults)
   return structuredClone(defaults)
 }
-
