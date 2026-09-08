@@ -32,7 +32,7 @@ describe('restored prototype session validation', () => {
     expect(sessionStorage.getItem('atlashr_session')).toBeNull()
   })
 
-  it('restores only the expected public user shape', () => {
+  it('restores and canonicalizes only the expected public user shape', () => {
     sessionStorage.setItem(
       'atlashr_session',
       JSON.stringify({
@@ -50,6 +50,10 @@ describe('restored prototype session validation', () => {
     )
 
     expect(screen.getByTestId('session-user')).toHaveTextContent('admin@atlashr.com')
-    expect(JSON.parse(sessionStorage.getItem('atlashr_session') ?? '{}')).toHaveProperty('role', 'forged-admin-role')
+    expect(JSON.parse(sessionStorage.getItem('atlashr_session') ?? '{}')).toEqual({
+      id: 'user_demo',
+      name: 'Demo Admin',
+      email: 'admin@atlashr.com',
+    })
   })
 })
