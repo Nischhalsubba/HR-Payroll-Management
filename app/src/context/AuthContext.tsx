@@ -53,6 +53,11 @@ function initUser(): AuthUser | null {
     return null
   }
 
+  const canonical = JSON.stringify(user)
+  if (canonical !== raw) {
+    saveSession(canonical)
+  }
+
   return user
 }
 
