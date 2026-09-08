@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import type { PasswordChangeInput, UserProfile } from '../types/profile'
 import { wait } from '../utils/helpers'
+import { readCanonicalLocalStorage } from '../utils/persistedState'
 
 const STORAGE_KEY = 'atlashr_profile'
 
@@ -13,21 +15,31 @@ const defaultProfile: UserProfile = {
   avatarLabel: 'AU',
 }
 
-function load(): UserProfile {
-  const raw = localStorage.getItem(STORAGE_KEY)
-  if (!raw) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultProfile))
-    return { ...defaultProfile }
-  }
+const profilePatchSchema = z.object({
+  fullName: z.string().trim().min(1).optional(),
+  email: z.string().trim().email().optional(),
+  role: z.string().trim().min(1).optional(),
+  phone: z.string().optional(),
+  location: z.string().optional(),
+  bio: z.string().optional(),
+  avatarLabel: z.string().max(2).optional(),
+})
 
-  try {
-    return {
-      ...defaultProfile,
-      ...(JSON.parse(raw) as UserProfile),
-    }
-  } catch {
-    return { ...defaultProfile }
-  }
+function load(): UserProfile {
+  return readCanonicalLocalStorage(
+    STORAGE_KEY,
+    (value) => {
+      const parsed = profilePatchSchema.safeParse(value)
+      if (!parsed.success) {
+        return null
+      }
+      return {
+        ...defaultProfile,
+        ...parsed.data,
+      }
+    },
+    () => ({ ...defaultProfile }),
+  )
 }
 
 function save(profile: UserProfile): void {
@@ -67,4 +79,3 @@ export async function updateAvatar(avatarLabel: string): Promise<UserProfile> {
   save(profile)
   return profile
 }
-

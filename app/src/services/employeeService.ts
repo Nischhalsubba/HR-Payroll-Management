@@ -37,6 +37,15 @@ function resolveRange(query: EmployeeQuery): { from?: number; to?: number } {
   }
 }
 
+function nextEmployeeIndex(): number {
+  const highestExistingId = store.reduce((highest, employee) => {
+    const numericId = Number(employee.id)
+    return Number.isSafeInteger(numericId) && numericId > highest ? numericId : highest
+  }, 0)
+
+  return highestExistingId + 1
+}
+
 export function applyEmployeeQuery(items: Employee[], query: EmployeeQuery): PaginatedResult<Employee> {
   const search = query.search.trim().toLowerCase()
   const { from, to } = resolveRange(query)
@@ -93,7 +102,7 @@ export async function listEmployees(query: EmployeeQuery): Promise<PaginatedResu
 
 export async function createEmployee(input: EmployeeFormInput): Promise<Employee> {
   await wait(250)
-  const index = store.length + 1
+  const index = nextEmployeeIndex()
   const employee: Employee = {
     id: String(index),
     employeeCode: `#${9500 + index}`,

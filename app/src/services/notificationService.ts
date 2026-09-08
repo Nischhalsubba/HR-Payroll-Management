@@ -1,7 +1,20 @@
+import { z } from 'zod'
 import type { NotificationItem, NotificationStatus } from '../types/notification'
 import { wait } from '../utils/helpers'
+import { readCanonicalLocalStorage } from '../utils/persistedState'
 
 const STORAGE_KEY = 'atlashr_notifications'
+
+const notificationSchema = z.object({
+  id: z.string().min(1),
+  title: z.string(),
+  preview: z.string(),
+  content: z.string(),
+  createdAt: z.string().refine((value) => !Number.isNaN(Date.parse(value)), 'Invalid notification timestamp'),
+  status: z.enum(['read', 'unread']),
+  category: z.enum(['attendance', 'payroll', 'leave', 'system', 'recruitment']),
+})
+const notificationListSchema = z.array(notificationSchema)
 
 const seedData: NotificationItem[] = [
   {
@@ -56,19 +69,19 @@ const seedData: NotificationItem[] = [
   },
 ]
 
-function load(): NotificationItem[] {
-  const raw = localStorage.getItem(STORAGE_KEY)
-  if (!raw) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(seedData))
-    return [...seedData]
-  }
+function seedNotifications(): NotificationItem[] {
+  return seedData.map((item) => ({ ...item }))
+}
 
-  try {
-    const parsed = JSON.parse(raw) as NotificationItem[]
-    return Array.isArray(parsed) ? parsed : [...seedData]
-  } catch {
-    return [...seedData]
-  }
+function load(): NotificationItem[] {
+  return readCanonicalLocalStorage(
+    STORAGE_KEY,
+    (value) => {
+      const parsed = notificationListSchema.safeParse(value)
+      return parsed.success ? parsed.data : null
+    },
+    seedNotifications,
+  )
 }
 
 function save(items: NotificationItem[]): void {
@@ -129,4 +142,3 @@ export async function unreadCount(): Promise<number> {
   await wait(60)
   return load().filter((item) => item.status === 'unread').length
 }
-
