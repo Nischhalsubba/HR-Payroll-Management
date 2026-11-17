@@ -55,12 +55,16 @@ flowchart TD
 
 ## Getting started
 
+The maintained Vite application and npm lockfile live in [`app/`](./app), not the repository root. Use Node.js 24.x and npm 11.x (see [`app/package.json`](./app/package.json)):
+
 ```bash
 git clone https://github.com/Nischhalsubba/HR-Payroll-Management.git
-cd HR-Payroll-Management
+cd HR-Payroll-Management/app
+npm ci
+npm run dev
 ```
 
-Use the manifests and lockfiles in the repository to determine the current runtime and development commands.
+Run `npm run check` from `app/` to lint, type-check, run Vitest tests and verify the production build. For an end-to-end browser run, use `npm run test:e2e` after installing the required Playwright browsers.
 
 ## Product, security & accessibility
 
